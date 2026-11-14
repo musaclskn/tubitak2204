@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>İlerleme Raporu</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --text:#1c1f24; --muted:#6b7280; --line:#e3e6eb;
+    --done:#16a34a; --part:#d97706; --todo:#9ca3af; --bar:#e9ecf1; --accent:#2563eb; --risk:#dc2626;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0f1115; --card:#181b21; --text:#e8eaee; --muted:#8b93a1; --line:#272b33;
+      --done:#34d399; --part:#fbbf24; --todo:#6b7280; --bar:#232730; --accent:#5b9bff; --risk:#f87171; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:960px;margin:0 auto;padding:20px 16px 48px}
+  h1{font-size:24px;margin:0 0 4px}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:20px}
+  h2{font-size:17px;margin:0 0 4px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:12px}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+  .kpi span{color:var(--muted);font-size:13px}
+  .bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--bar)}
+  .bar i{display:block;height:100%}
+  .bar .d{background:var(--done)} .bar .p{background:var(--part)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:13px;margin-top:8px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+  .sec-head .cnt{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  ul{list-style:none;margin:12px 0 0;padding:0}
+  li{display:grid;grid-template-columns:22px 1fr;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+  li:first-child{border-top:0}
+  li .ic{font-weight:700;text-align:center}
+  li[data-s=done] .ic{color:var(--done)}
+  li[data-s=part] .ic{color:var(--part)}
+  li[data-s=todo] .ic{color:var(--todo)}
+  li small{display:block;color:var(--muted);font-size:13px}
+  .tag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor;margin-left:6px;vertical-align:1px}
+  .t-part{color:var(--part)} .t-wait{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:13px;border-top:0}
+  .risk{border-left:3px solid var(--risk);padding-left:10px;margin:8px 0}
+  .note{color:var(--muted);font-size:13px}
+  @media print{ body{background:#fff} .card{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>İlerleme Raporu</h1>
+  <div class="meta">Uyarlanabilir sulama projesi · TÜBİTAK 2204-A 2026-2027 · Rapor tarihi: 14 Kasım 2026 · Veri toplama hedefi: 24 Kasım · Yükleme hedefi: 30 Aralık (son tarih 4 Ocak 2027, 17.30)</div>
+
+  <div class="card">
+    <h2>Genel durum</h2>
+    <div class="summary">
+      <div class="kpi"><b id="kDone">–</b><span>tamamlanan madde</span></div>
+      <div class="kpi"><b id="kPart">–</b><span>yapıldı, doğrulanmadı</span></div>
+      <div class="kpi"><b id="kTodo">–</b><span>yapılacak</span></div>
+      <div class="kpi"><b id="kPct">–</b><span>tamamlanan (madde sayısına göre)</span></div>
+    </div>
+    <div class="bar"><i class="d" id="barD"></i><i class="p" id="barP"></i></div>
+    <div class="legend">
+      <span><b style="color:var(--done)">✔</b> Tamamlandı ve doğrulandı</span>
+      <span><b style="color:var(--part)">◐</b> Yapıldı ama cihazda doğrulanmadı</span>
+      <span><b style="color:var(--todo)">☐</b> Yapılacak</span>
+    </div>
+    <p class="note" style="margin:10px 0 0">Yüzde, madde sayısına göredir ve işlerin zorluğunu yansıtmaz. Tek bir kap için çalışan bir tezgâh prototipi var. Asıl deney düzeneği (3 kap, pompa, kayıt) henüz kurulmadı.</p>
+  </div>
+
+  <div class="card" data-sec>
+    <div class="sec-head"><h2>1. Geliştirme ortamı</h2><span class="cnt"></span></div>
+    <div class="bar"><i class="d"></i><i class="p"></i></div>
+    <ul>
+      <li data-s="done"><span class="ic">✔</span><div>CP2102 USB sürücüsü kuruldu, kart COM4'te görünüyor</div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Arduino CLI ve ESP32 kart paketi (3.3.12) kuruldu</div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Kütüphaneler: HX711 0.6.6, DHT sensor library 1.4.7, Adafruit Unified Sensor</div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Derleme ve karta yükleme hattı çalışıyor<small>Doğrulama: yükleme "Hash of data verified", açılış sonrası seri çıktı alındı.</small></div></li>
+    </ul>
+  </div>
+
+  <div class="card" data-sec>
+    <div class="sec-head"><h2>2. Tek kap tezgâh prototipi: sensörler</h2><span class="cnt"></span></div>
+    <div class="bar"><i class="d"></i><i class="p"></i></div>
+    <ul>
+      <li data-s="done"><span class="ic">✔</span><div>HX711 + 20 kg yük hücresi okuması<small>Boşta okuma sıfır civarında, hücre ağırlığa tepki veriyor.</small></div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Ağırlık filtresi (medyan + üstel ortalama + ölü bölge)<small>Boşta ham dalgalanma yaklaşık ±45 sayımdan ±15 sayıma indi (seri çıktıdan gözlem, ayrıca ölçülmedi).</small></div></li>
+      <li data-s="part"><span class="ic">◐</span><div>Ağırlık kalibrasyonu yapıldı, faktör kartta kalıcı (102,92 sayım/g)<small>İkinci bir bilinen kütleyle doğruluk ve doğrusallık doğrulanmadı.</small></div></li>
+      <li data-s="done"><span class="ic">✔</span><div>HD-38 toprak nemi okuması, GPIO25'ten güç kontrolü<small>Besleme sonrası çıkışın ~120 ms'de oturduğu ölçüldü, bekleme 300 ms yapıldı. Havada 4095 (tavan) okunuyor.</small></div></li>
+      <li data-s="part"><span class="ic">◐</span><div>Nem kuru/ıslak referansı kaydedildi (yüzde gösteriyor)<small>İki noktalı doğrusal ölçek. Bilinen su içerikli toprakla (gravimetrik) kalibrasyon yok.</small></div></li>
+      <li data-s="done"><span class="ic">✔</span><div>DHT11 sıcaklık ve hava nemi okuması<small>≈25 °C, %45-48. Hat tanısında 83 kenar sayıldı (sağlıklı sensör).</small></div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Bağlantı hataları teşhis edildi ve giderildi<small>Resetlerin nedeni: GND kablosunun flash hattına giden CMD pinine takılması ve gevşek GND. Sensörler bozuk değilmiş.</small></div></li>
+    </ul>
+  </div>
+
+  <div class="card" data-sec>
+    <div class="sec-head"><h2>3. Arayüz</h2><span class="cnt"></span></div>
+    <div class="bar"><i class="d"></i><i class="p"></i></div>
+    <ul>
+      <li data-s="done"><span class="ic">✔</span><div>Web paneli (Chrome/Edge, Web Serial): ağırlık, toprak nemi, hava, grafikler, min/maks, CSV indirme<small>Cihazla çalıştı. Yerleşik tarayıcıda yalnızca arayüz hatasız yükleniyor.</small></div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Panelden tara, kalibre et ve nem kalibrasyon komutları</div></li>
+      <li data-s="part"><span class="ic">◐</span><div>Panelde sulama ve fan kontrolleri<small>Arayüz hatasız açılıyor. Kartın komutları seri portta doğrulandı, ama panel düğmeleri cihazla Chrome'da denenmedi.</small></div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Kesintisiz otomatik kayıt<small>Panel yalnızca sekme açıkken kaydediyor. Kayıt çözümü, Wi-Fi/veritabanı kararına bağlı.</small></div></li>
+    </ul>
+  </div>
+
+  <div class="card" data-sec>
+    <div class="sec-head"><h2>4. Sulama ve fan</h2><span class="cnt"></span></div>
+    <div class="bar"><i class="d"></i><i class="p"></i></div>
+    <ul>
+      <li data-s="done"><span class="ic">✔</span><div>Pompa ve fan yazılımı karta yüklendi, komutlar çalışıyor<small>Komutlar: p&lt;mL&gt;, pt&lt;sn&gt;, pf&lt;mL/sn&gt;, q, f1/f0, i. Seri komutlarla denendi. Pompa ve fan donanımı henüz bağlı değil.</small></div></li>
+      <li data-s="part"><span class="ic">◐</span><div>Güvenlik sınırları<small>Tek doz 50 mL, azami 60 sn, 10 dk bekleme, 200 mL/gün. Doğrulananlar: tek doz sınırı, azami süre, bekleme (kalan süre gösteriyor), geçersiz miktar, anında durdurma, açılışta kapalı. Denenmeyenler: günlük toplam sınırı, depo bos, çalışırken ağırlık sensörü kaybı. Değerler temkinli varsayılan, pilotta kilitlenecek.</small></div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Ham ağırlık çıktısı ve kalıcı tara (araştırma verisi için)<small>Kart yeniden başlatıldıktan sonra "kayıtlı tara yüklendi", boşta sıfır civarı okuma korundu. Filtresiz tek örnek gürültüsü boşta yaklaşık ±1 g.</small></div></li>
+      <li data-s="done"><span class="ic">✔</span><div>Yazılımı yükle, güvenlik mantığını seri komutlarla sına</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>MOSFET modülü ve pompa üzerindeki işaretleri teyit et<small>Bugünkü CMD/GND hatasından sonra ters bağlantıyı önlemek için.</small></div></li>
+      <li data-s="part"><span class="ic">◐</span><div>Kap kartı bağlantı şeması hazırlandı (delikli plaket için)<small>Blok şema, pin tablosu, konnektörler, güç bütçesi, ilk açılış sırası: Kap_Karti_Baglanti_Semasi.html. Devre henüz kurulmadı, pompa/fan tarafı denenmedi.</small></div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>12 V güç grubu ve pompa/fan MOSFET kartını lehimle: ayrı adaptör, ortak GND, pompaya ters diyot, MOSFET girişine 10 kΩ pull-down</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Pompa debi kalibrasyonu (mL/sn) ve doz tekrarlanabilirliği</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Fan testi, depo seviye anahtarı</div></li>
+    </ul>
+  </div>
+
+  <div class="card" data-sec>
+    <div class="sec-head"><h2>5. Veri altyapısı <span class="tag t-wait">karar bekliyor</span></h2><span class="cnt"></span></div>
+    <div class="bar"><i class="d"></i><i class="p"></i></div>
+    <ul>
+      <li data-s="part"><span class="ic">◐</span><div>Mimari önerildi: ESP32 → Wi-Fi → Supabase (Postgres/REST), arayüz GitHub Pages'te<small>GitHub Pages'in yalnızca statik site barındırdığı resmi belgeden doğrulandı (API/veritabanı olamaz). Supabase ücretsiz katman limitleri fiyat sayfasından okundu. Kurulum yapılmadı.</small></div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Wi-Fi ortamı kararı (okul ağı mı, telefon hotspot'u mu)<small>Kurumsal giriş gerektiren okul ağlarına ESP32 bağlanamayabilir.</small></div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Wi-Fi + NTP saat + internet kopunca tampon + HTTPS gönderimi (5 dk özet, sulama olayı ayrı)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Veritabanı tabloları ve kurallar (olcumler, sulama_olaylari)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Paneli veritabanından okuyan GitHub Pages sürümü</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Haftalık CSV yedeği ve hareketsizlik hatırlatması<small>Ücretsiz katmanda otomatik yedek yok, proje 1 hafta hareketsiz kalırsa duraklatılıyor.</small></div></li>
+    </ul>
+  </div>
+
+  <div class="card" data-sec>
+    <div class="sec-head"><h2>6. Deney hazırlığı (24 Kasım'a kadar)</h2><span class="cnt"></span></div>
+    <div class="bar"><i class="d"></i><i class="p"></i></div>
+    <ul>
+      <li data-s="done"><span class="ic">✔</span><div>Kap sayısı kararı: 3 kap, mikroiklim başına bir kart (aynı yazılım)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>3 kapın kurulumu: 3 kart, yük hücresi platformları, sensör ve pompa bağlantıları</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>48-72 saatlik boşta kararlılık testi (kayma, reset yok mu)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Ağırlık doğrulaması: en az iki farklı bilinen kütle</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Nem sensörü için gravimetrik kalibrasyon</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Hedef aralık, sabit doz, bekleme ve güvenlik sınırlarını yazılı kilitle</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Test B tasarımını danışmanla teyit et (3 kapta yöntemleri sırayla döndürme)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Plan belgesindeki tarihleri güncelle (veri toplama 24 Kas, karar noktası ~28 Kas)</div></li>
+    </ul>
+  </div>
+
+  <div class="card" data-sec>
+    <div class="sec-head"><h2>7. Proje yönetimi, deney ve rapor</h2><span class="cnt"></span></div>
+    <div class="bar"><i class="d"></i><i class="p"></i></div>
+    <ul>
+      <li data-s="done"><span class="ic">✔</span><div>Revize plan (v2) ve malzeme listesi incelendi, plan ile mevcut düzenek arasındaki farklar çıkarıldı</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Literatür taraması: en az 5 yakın çalışma tablosu ve "bizim farkımız" cümlesi</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Deney günlüğü ve yapay zekâ kullanım günlüğü<small>Plan, kullanılan her yardımın günlüğe yazılmasını şart koşuyor.</small></div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Eğitim verisi toplama (24 Kas – 3 Ara)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Model: iki referans + ridge/karar ağacı, ESP32'de çalışan basit model; model dondurma (4 Ara)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Test A (tahmin, 5-11 Ara) ve Test B (kontrol, 12-21 Ara)</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>Analiz ve rapor (en fazla 20 sayfa), özet, ekler, benzerlik kontrolü</div></li>
+      <li data-s="todo"><span class="ic">☐</span><div>TYBS'ye yükleme (hedef 30 Aralık; son tarih 4 Ocak 2027, 17.30)</div></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Açık riskler ve kararlar</h2>
+    <div class="risk"><b>Sensör seçimi planla uyuşmuyor.</b> Plan kapasitif nem sensörü, SHT31 ve 5 kg yük hücresi öngörüyor. Elde HD-38 (dirençli), DHT11 (±2 °C, ±%5) ve 20 kg hücre var. Raporda hangi sensörlerin kullanıldığı ve bunun sınırlama olduğu açıkça yazılmalı.</div>
+    <div class="risk"><b>Deney tasarımı.</b> 3 kapla her yöntem için tek kap kalıyor. Yöntemlerin kaplar arasında döndürülmesi önerildi, danışman onayı gerekli.</div>
+    <div class="risk"><b>Pompa ve GPIO akımları ölçülmedi.</b> Pompa akımı satıcılara göre 80 mA ile 0,42 A arasında çelişkili. HD-38 modülünü GPIO25 beslediği için modülün çektiği akım da ölçülmedi.</div>
+    <div class="risk"><b>Veri kaybı riski.</b> Kesintisiz kayıt henüz yok. Wi-Fi ortamı belirsiz. Ücretsiz veritabanında otomatik yedek bulunmuyor.</div>
+    <div class="risk"><b>Takvim.</b> Veri toplama planın 3 gün gerisinde (24 Kas). Plandaki 5 günlük kesintisiz kayıt ölçütü ancak ~28 Kas'ta dolar, tampon kısaldı.</div>
+  </div>
+
+  <div class="card">
+    <h2>Önümüzdeki adımlar (sıralı)</h2>
+    <table>
+      <thead><tr><th>Dönem</th><th>İş</th></tr></thead>
+      <tbody>
+        <tr><td>15-17 Kas</td><td>Pompa yazılımını yükle ve sına, MOSFET/pompa işaretlerini teyit et, 12 V bağlantısı, debi ve fan testi</td></tr>
+        <tr><td>17-20 Kas</td><td>Veri kayıt yöntemi kararı ve kurulumu, 48-72 saatlik kararlılık testi</td></tr>
+        <tr><td>20-23 Kas</td><td>Gravimetrik nem kalibrasyonu, iki kütleyle ağırlık doğrulaması, sınırların yazılı kilitlenmesi, 3 kap kurulumu</td></tr>
+        <tr><td>24 Kas</td><td><b>Veri toplama başlar</b></td></tr>
+        <tr><td>~28 Kas</td><td>Karar noktası: 5 günlük kesintisiz kayıt var mı? Yoksa plandaki yedek plan 1 (yalnızca Test A)</td></tr>
+        <tr><td>4 Ara – 30 Ara</td><td>Model dondurma, Test A, Test B, analiz, rapor, yükleme</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  var total = {d:0, p:0, t:0};
+  document.querySelectorAll('[data-sec]').forEach(function(sec){
+    var d = sec.querySelectorAll('li[data-s=done]').length;
+    var p = sec.querySelectorAll('li[data-s=part]').length;
+    var t = sec.querySelectorAll('li[data-s=todo]').length;
+    var n = d + p + t;
+    total.d += d; total.p += p; total.t += t;
+    sec.querySelector('.cnt').textContent = d + ' / ' + n + ' tamam' + (p ? ' · ' + p + ' doğrulanmadı' : '');
+    var bar = sec.querySelector('.bar');
+    bar.querySelector('.d').style.width = (100 * d / n) + '%';
+    bar.querySelector('.p').style.width = (100 * p / n) + '%';
+  });
+  var n = total.d + total.p + total.t;
+  document.getElementById('kDone').textContent = total.d;
+  document.getElementById('kPart').textContent = total.p;
+  document.getElementById('kTodo').textContent = total.t;
+  document.getElementById('kPct').textContent = '%' + Math.round(100 * total.d / n);
+  document.getElementById('barD').style.width = (100 * total.d / n) + '%';
+  document.getElementById('barP').style.width = (100 * total.p / n) + '%';
+})();
+</script>
+</body>
+</html>

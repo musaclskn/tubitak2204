@@ -1,0 +1,419 @@
+<title>2204-A Proje Raporu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Düzen: tek sütunlu rapor; üstte karar özeti, ortada karşılaştırma tablosu, altta proje kartları, sonda takvim ve kararlar. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --fg:#14202b; --muted:#51606e; --line:#d5dce3;
+  --accent:#1f3a5f; --accent-soft:#e6edf6;
+  --energy:#8a5a0f; --energy-bg:#fbf1dc; --energy-bar:#d99a2b;
+  --auto:#0f5f78; --auto-bg:#e1f0f5; --auto-bar:#2f93b3;
+  --good:#1d6b43; --good-bg:#e3f3ea; --warn:#8a5a0f; --warn-bg:#fbf1dc; --bad:#9a2c2c; --bad-bg:#f8e4e4;
+  --f-display:"IBM Plex Sans Condensed","IBM Plex Sans","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f171e; --surface:#17222c; --fg:#e6ecf1; --muted:#9aabb9; --line:#2b3a47;
+  --accent:#8fb4e3; --accent-soft:#1b2a3c;
+  --energy:#e3b25a; --energy-bg:#2e2410; --energy-bar:#c58a22;
+  --auto:#6cc0dc; --auto-bg:#102a34; --auto-bar:#2f93b3;
+  --good:#6fcf9b; --good-bg:#12301f; --warn:#e3b25a; --warn-bg:#2e2410; --bad:#f09a9a; --bad-bg:#3a1a1a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f171e; --surface:#17222c; --fg:#e6ecf1; --muted:#9aabb9; --line:#2b3a47;
+  --accent:#8fb4e3; --accent-soft:#1b2a3c;
+  --energy:#e3b25a; --energy-bg:#2e2410; --energy-bar:#c58a22;
+  --auto:#6cc0dc; --auto-bg:#102a34; --auto-bar:#2f93b3;
+  --good:#6fcf9b; --good-bg:#12301f; --warn:#e3b25a; --warn-bg:#2e2410; --bad:#f09a9a; --bad-bg:#3a1a1a;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--f-body);padding-block:0 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:960px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.65rem;font-weight:700;margin-bottom:14px}
+h3{font-size:1.25rem;font-weight:700}
+p{margin:0 0 12px;max-width:70ch}
+a{color:var(--accent)}
+.eyebrow{font:500 .75rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header.top{padding-block:40px 28px;border-bottom:2px solid var(--fg);margin-bottom:8px}
+header.top .meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:16px;color:var(--muted);font-size:.9rem}
+header.top .meta b{color:var(--fg);font-weight:600}
+section{padding-block:34px 6px}
+.sub{color:var(--muted)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);padding:16px 18px;min-width:0}
+.box h3{font-size:1.05rem;margin-bottom:6px}
+.box p{font-size:.93rem;margin-bottom:0}
+.lead{background:var(--accent-soft);border-left:4px solid var(--accent);padding:16px 20px}
+.lead p:last-child{margin-bottom:0}
+.tw{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:.9rem}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 .72rem/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono)}
+.pill{display:inline-block;font:500 .75rem/1 var(--f-mono);padding:4px 7px;border-radius:3px;white-space:nowrap}
+.p-good{background:var(--good-bg);color:var(--good)} .p-warn{background:var(--warn-bg);color:var(--warn)} .p-bad{background:var(--bad-bg);color:var(--bad)}
+.p-en{background:var(--energy-bg);color:var(--energy)} .p-au{background:var(--auto-bg);color:var(--auto)}
+.bars{display:grid;gap:10px;margin:6px 0 16px}
+.bar{display:grid;grid-template-columns:minmax(120px,210px) 1fr 44px;gap:12px;align-items:center;font-size:.92rem}
+.bar .t{height:14px;background:var(--line)}
+.bar .t i{display:block;height:100%;background:var(--accent)}
+.bar b{font:500 .95rem var(--f-mono);text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.chip{font:500 .82rem var(--f-body);padding:7px 14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.chip:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.proj{background:var(--surface);border:1px solid var(--line);margin-bottom:18px;min-width:0}
+.proj>header{display:flex;gap:14px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--line)}
+.proj[data-track="enerji"]>header{background:var(--energy-bg)}
+.proj[data-track="otomasyon"]>header{background:var(--auto-bg)}
+.code{font:600 .95rem var(--f-mono);padding:3px 8px;background:var(--fg);color:var(--bg);flex:none}
+.tags{display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px 0}
+.proj dl{margin:0;padding:12px 18px 6px;display:grid;grid-template-columns:150px 1fr;gap:10px 18px}
+.proj dt{font:500 .72rem/1.5 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.proj dd{margin:0;min-width:0}
+.proj dd p{margin-bottom:6px;font-size:.95rem}
+ul.tight{margin:0;padding-left:20px} ul.tight li{margin-bottom:4px;font-size:.95rem}
+.risk{margin:12px 18px 16px;padding:10px 14px;background:var(--warn-bg);color:var(--fg);font-size:.9rem;border-left:4px solid var(--warn)}
+.tl{list-style:none;margin:0;padding:0;border-left:2px solid var(--fg)}
+.tl li{position:relative;padding:0 0 18px 20px}
+.tl li::before{content:"";position:absolute;left:-7px;top:7px;width:12px;height:12px;background:var(--bg);border:2px solid var(--fg)}
+.tl li.end::before{background:var(--bad);border-color:var(--bad)}
+.tl .d{font:600 .85rem var(--f-mono)} .tl p{margin:2px 0 0;font-size:.93rem}
+ol.dec{margin:0;padding-left:22px} ol.dec li{margin-bottom:8px}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+footer li{margin-bottom:4px;overflow-wrap:anywhere}
+@media (max-width:640px){
+  .proj dl{grid-template-columns:1fr;gap:2px}
+  .proj dt{padding-top:10px}
+  .bar{grid-template-columns:1fr 44px}.bar .t{grid-column:1/-1;grid-row:2}
+}
+@page{size:A4;margin:14mm 12mm}
+@media print{
+  body{font-size:11.5px;line-height:1.5;padding:0;background:#fff}
+  :root{--bg:#f3f5f7}
+  .wrap{max-width:none}
+  header.top{padding-block:0 14px}
+  h1{font-size:28px} h2{font-size:20px;margin-bottom:10px} h3{font-size:15px}
+  section{padding-block:18px 0}
+  h2{break-after:avoid}
+  .chips{display:none}
+  .proj,.box,.lead,.risk,.tl li{break-inside:avoid}
+  .proj>header,.tags{break-after:avoid}
+  .tw{overflow:visible;border:1px solid var(--line)}
+  table{min-width:0;width:100%;table-layout:fixed;font-size:10.5px}
+  th,td{padding:6px 6px;overflow-wrap:anywhere}
+  th{white-space:normal;font-size:9px;letter-spacing:.02em}
+  th:nth-child(1),td:nth-child(1){width:5%}
+  th:nth-child(2),td:nth-child(2){width:31%}
+  th:nth-child(3),td:nth-child(3){width:15%}
+  th:nth-child(4),td:nth-child(4){width:19%}
+  th:nth-child(5),td:nth-child(5){width:15%}
+  th:nth-child(6),td:nth-child(6){width:15%}
+  .pill{white-space:normal;font-size:10px;padding:3px 5px}
+  .proj dl{grid-template-columns:105px 1fr;gap:6px 12px;padding:8px 14px 4px}
+  .proj>header{padding:10px 14px}.tags{padding:8px 14px 0}.risk{margin:8px 14px 12px}
+  .proj dd p,ul.tight li{font-size:11.5px}
+  .grid3{grid-template-columns:repeat(3,1fr);gap:10px}
+  .bar{grid-template-columns:170px 1fr 36px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">TÜBİTAK 2204-A · 58. Lise Öğrencileri Araştırma Projeleri Yarışması · 2026-2027</div>
+  <h1 style="margin-top:14px">Okulumuz için proje önerileri raporu</h1>
+  <p class="sub" style="margin-top:12px">Endüstriyel otomasyon ve yenilenebilir enerji teknolojileri alanlarında, yarışma kurallarına göre hazırlanmış 11 proje önerisi, takvim ve karar listesi.</p>
+  <div class="meta"><span>Hazırlanma tarihi: <b>3 Kasım 2026</b></span><span>Son başvuru: <b>4 Ocak 2027, 17.30</b></span><span>Kalan süre: <b>yaklaşık 9 hafta</b></span></div>
+</header>
+
+<section>
+  <h2>1. Özet ve karar noktaları</h2>
+  <div class="lead">
+    <p><b>Ana mesaj.</b> Proje başvuru tarihinde <b>tamamlanmış</b> olmalı; fikir aşamasındaki ya da devam eden proje kabul edilmiyor. Elimizde 9 hafta var. Bu yüzden önerilen projelerin hepsi, tek bir prototip ve en fazla 2-3 haftalık veri toplamayla bitebilecek şekilde daraltıldı.</p>
+    <p><b>Öneri.</b> Önce en dengeli beş projeyle başlamak: <b>E2, E4, A1, A5, A6</b>. Bunlar hem Ocak'a yetişir hem de benzer çalışmalara göre fark yaratma şansı daha yüksek. Bir öğrenci yalnızca bir projede yer alabildiği için her proje için ayrı bir 3 kişilik ekip gerekir.</p>
+    <p style="margin-bottom:0"><b>Bu raporun sınırı.</b> Önceki yılların dereceli projelerinin tam listesine ulaşamadım. Aşağıdaki projeler <i>geçmiş kazananlar değil</i>, yarışma rehberine ve değerlendirme formuna göre tasarlanmış önerilerdir. Özgünlük için her projede ekibin kendi literatür taraması gerekir.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2. Yarışma bir bakışta</h2>
+  <div class="grid3">
+    <div class="box"><h3>Kim katılır</h3><p>Türkiye ve KKTC'de lise öğrencileri, son başvuru gününde 20 yaşından gün almamış. Projede en fazla 3 öğrenci, en fazla 1 danışman (isteğe bağlı).</p></div>
+    <div class="box"><h3>Nasıl işler</h3><p>TYBS'den başvuru, ön değerlendirme, 12 bölgede sergi ve sunum, bölge birincileri için Türkiye finali.</p></div>
+    <div class="box"><h3>Kazanç</h3><p>Final birinciliği öğrenciye kişi başı 33.000 TL, danışmana 24.000 TL. İlk üçe YKS ek katsayı ve BİDEB program başvuru hakkı.</p></div>
+  </div>
+  <p style="margin-top:16px" class="sub">Zorunlu şartlar: ana alan seçimi (12 alan), listedeki tematik alanlardan en az birini kapsamak, ARBİS kaydı, 20 sayfayı geçmeyen rapor, 150-250 kelimelik özet. Ana ve tematik alan başvurudan sonra değiştirilemez.</p>
+</section>
+
+<section>
+  <h2>3. Jüri neye puan veriyor</h2>
+  <p>Ön değerlendirme formunun ağırlıkları (2025 formu; yeni formu doğrulamak gerekir):</p>
+  <div class="bars" role="list">
+    <div class="bar" role="listitem"><span>Problem ve araştırma sorusu</span><span class="t"><i style="width:66.7%"></i></span><b>20</b></div>
+    <div class="bar" role="listitem"><span>Yöntem</span><span class="t"><i style="width:66.7%"></i></span><b>20</b></div>
+    <div class="bar" role="listitem"><span>Yaratıcılık ve etki</span><span class="t"><i style="width:100%"></i></span><b>30</b></div>
+    <div class="bar" role="listitem"><span>Sonuçlar ve tartışma</span><span class="t"><i style="width:100%"></i></span><b>30</b></div>
+  </div>
+  <div class="grid3">
+    <div class="box"><h3>Ölçülebilir sonuç şart</h3><p>Puanın yarısından fazlası etki ve sonuçlarda. "Çalışıyor" yetmez; hedeflerin ölçülerek karşılandığı gösterilmeli.</p></div>
+    <div class="box"><h3>Karşılaştırma şart</h3><p>Form, ürünün "standart prosedürlere göre çalışırlığını ve karşılaştırılmasını" ayrıca puanlıyor. Her projede bir referans (sabit panel, mevcut yöntem, eşik tabanlı yöntem) olmalı.</p></div>
+    <div class="box"><h3>Tekrarlanabilirlik</h3><p>Sonuçların açık, doğru ve tekrarlanabilir olması puanlanıyor. Ölçümler en az 3 tekrar, ham veri ekte.</p></div>
+  </div>
+  <p style="margin-top:16px">Rehber, Teknolojik Tasarım projelerinde <b>çok boyutluluğu</b> seçim ölçütü olarak sayıyor: yalnızca tek bir algoritmanın basit uygulaması yerine, sensör, karar ve mekatronik çıktıyı birleştiren bir sistem aranıyor. Otomasyon öğrencilerimiz için bu avantaj. Rehber ayrıca daha önce çözülmüş bir probleme daha ucuz, daha az emekle ya da daha farklı bir yaklaşım getirmeyi özgünlük sayıyor.</p>
+</section>
+
+<section>
+  <h2>4. Proje önerileri</h2>
+  <p>Yenilenebilir enerji (E) ve endüstriyel otomasyon (A) olmak üzere 11 öneri. "Ocak'a yetişir", 9 haftalık sürede tamamlanma olasılığını; "özgünlük riski", benzer çalışmaların çokluğunu gösterir.</p>
+  <div class="chips" role="group" aria-label="Alan filtresi">
+    <button class="chip" type="button" data-f="all" aria-pressed="true">Tümü (11)</button>
+    <button class="chip" type="button" data-f="enerji" aria-pressed="false">Yenilenebilir enerji (5)</button>
+    <button class="chip" type="button" data-f="otomasyon" aria-pressed="false">Endüstriyel otomasyon (6)</button>
+  </div>
+
+  <div class="tw" style="margin-bottom:24px">
+  <table id="matrix">
+    <thead><tr><th>Kod</th><th>Proje</th><th>Ana alan</th><th>Tematik alan</th><th>Ocak'a yetişir</th><th>Özgünlük riski</th></tr></thead>
+    <tbody>
+      <tr data-track="enerji"><td class="num">E1</td><td>Güneş takibinde net enerji kazancı</td><td>Teknolojik Tasarım</td><td>Yenilenebilir Enerji</td><td><span class="pill p-good">Evet</span></td><td><span class="pill p-bad">Yüksek</span></td></tr>
+      <tr data-track="enerji"><td class="num">E2</td><td>Panel kirlenmesini algılayan akıllı temizlik</td><td>Teknolojik Tasarım</td><td>Yenilenebilir Enerji</td><td><span class="pill p-good">Evet</span></td><td><span class="pill p-warn">Orta</span></td></tr>
+      <tr data-track="enerji"><td class="num">E3</td><td>Hibrit mini şebekede PLC enerji yönetimi</td><td>Teknolojik Tasarım</td><td>Yenilenebilir Enerji</td><td><span class="pill p-warn">Orta</span></td><td><span class="pill p-warn">Orta</span></td></tr>
+      <tr data-track="enerji"><td class="num">E4</td><td>PV arıza ve gölgelenme erken uyarısı</td><td>Yazılım</td><td>Makine Öğrenmesi</td><td><span class="pill p-good">Evet</span></td><td><span class="pill p-warn">Orta</span></td></tr>
+      <tr data-track="enerji"><td class="num">E5</td><td>Düşük rüzgârda 3B baskı kanat karşılaştırması</td><td>Fizik</td><td>Yenilenebilir Enerji</td><td><span class="pill p-good">Evet</span></td><td><span class="pill p-bad">Yüksek</span></td></tr>
+      <tr data-track="otomasyon"><td class="num">A1</td><td>Atölye motoru için prediktif bakım izleme</td><td>Yazılım</td><td>Makine Öğrenmesi</td><td><span class="pill p-good">Evet</span></td><td><span class="pill p-warn">Orta</span></td></tr>
+      <tr data-track="otomasyon"><td class="num">A2</td><td>Otomasyon istasyonunun dijital ikizi</td><td>Teknolojik Tasarım</td><td>Dijital İkiz</td><td><span class="pill p-warn">Orta</span></td><td><span class="pill p-good">Düşük</span></td></tr>
+      <tr data-track="otomasyon"><td class="num">A3</td><td>Görüntü işlemeli ayıklama bandında enerji tasarrufu</td><td>Teknolojik Tasarım</td><td>Robotik ve Kodlama</td><td><span class="pill p-good">Evet</span></td><td><span class="pill p-bad">Yüksek</span></td></tr>
+      <tr data-track="otomasyon"><td class="num">A4</td><td>Güneşle çalışan akıllı sulama otomasyonu</td><td>Teknolojik Tasarım</td><td>Tarım ve Hayvancılık Teknolojileri</td><td><span class="pill p-bad">Zor</span></td><td><span class="pill p-warn">Orta</span></td></tr>
+      <tr data-track="otomasyon"><td class="num">A5</td><td>PLC istasyonu için endüstriyel siber güvenlik</td><td>Yazılım</td><td>Siber Güvenlik</td><td><span class="pill p-warn">Orta</span></td><td><span class="pill p-good">Düşük</span></td></tr>
+      <tr data-track="otomasyon"><td class="num">A6</td><td>Basınçlı hava kaçak tespiti ve enerji tasarrufu</td><td>Teknolojik Tasarım</td><td>Sorumlu Üretim ve Tüketim</td><td><span class="pill p-good">Evet</span></td><td><span class="pill p-good">Düşük</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- E1 -->
+  <article class="proj" data-track="enerji" id="E1">
+    <header><span class="code">E1</span><h3>Güneş takibinde net enerji kazancı</h3></header>
+    <div class="tags"><span class="pill p-en">Yenilenebilir enerji</span><span class="pill p-good">Ocak'a yetişir</span><span class="pill p-bad">Özgünlük riski yüksek</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Çift eksenli takip sistemi, kendi motorlarının harcadığı enerji düşüldükten sonra sabit panele göre gerçekten kazanç sağlıyor mu? Hangi takip algoritması en az hareketle en çok kazancı veriyor?</p></dd>
+      <dt>Yöntem</dt><dd><p>İki özdeş küçük panel (12 V sınıfı), biri sabit biri takipli, aynı yükle. Akım, gerilim ve motor tüketimi kayıt altına alınır. Üç algoritma karşılaştırılır: zaman tabanlı, ışık sensörü tabanlı, eşik tabanlı (yalnızca sapma belli açıyı geçince hareket).</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Günlük üretilen enerji (Wh), sabit panele göre fark (%)</li><li>Takip motorunun harcadığı enerji, net kazanç (%)</li><li>Gün başına hareket sayısı</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Konu çok işlenmiş; PLC ile çok eksenli takip üzerine akademik çalışmalar da var. Farkı <b>net kazanç</b> ve <b>hareket sıklığı optimizasyonu</b> yaratır. Yalnızca "takip eden sistem yaptık" projesi düşük puan alır.</p></dd>
+      <dt>İlgili dersler</dt><dd><p>PLC ya da mikrodenetleyici, motor sürücü, elektriksel ölçme, güneş enerjisi sistemleri.</p></dd>
+    </dl>
+    <div class="risk"><b>Dikkat:</b> Kasım-Aralık ayında güneşli gün az ve gün kısa. Ölçüm günlerini şimdiden planlayın; yapay ışıkla yalnızca algoritma doğrulaması yapın, verimi bununla raporlamayın.</div>
+  </article>
+
+  <!-- E2 -->
+  <article class="proj" data-track="enerji" id="E2">
+    <header><span class="code">E2</span><h3>Panel kirlenmesini algılayan akıllı temizlik</h3></header>
+    <div class="tags"><span class="pill p-en">Yenilenebilir enerji</span><span class="pill p-good">Ocak'a yetişir</span><span class="pill p-warn">Özgünlük riski orta</span><span class="pill p-good">Önerilen</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Temiz bir referans panelle kirli panelin akım farkından kirlenme güvenle algılanabilir mi? Eşik aşılınca çalışan temizleme, takvimli temizliğe göre daha az enerji ve su harcayarak aynı verimi korur mu?</p></dd>
+      <dt>Yöntem</dt><dd><p>İki özdeş panel; biri bilinçli ve ölçülü kirletilir (okul bahçesi tozu, tartılmış miktar). Kirlilik ile akım kaybı arasındaki ilişki çıkarılır, eşik belirlenir. Fırçalı ya da hava üflemeli basit bir mekanizma eşikte devreye girer. Üç strateji karşılaştırılır: temizlik yok, haftalık takvimli, eşik tabanlı.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Kirlilik düzeyine göre verim kaybı (%)</li><li>Algılama doğruluğu, yanlış alarm sayısı</li><li>Temizlik başına enerji ve su, toplam net kazanç</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Ticari temizlik robotları ve referans hücreli sensörler var. Okul projesi için fark: referans hücre yerine <b>ikinci bir panelle düşük maliyetli algılama</b> ve üç stratejinin ölçülü karşılaştırması.</p></dd>
+      <dt>İlgili dersler</dt><dd><p>Elektriksel ölçme, mikrodenetleyici/PLC, motor kontrolü, mekanik tasarım.</p></dd>
+    </dl>
+  </article>
+
+  <!-- E3 -->
+  <article class="proj" data-track="enerji" id="E3">
+    <header><span class="code">E3</span><h3>Hibrit mini şebekede PLC enerji yönetimi</h3></header>
+    <div class="tags"><span class="pill p-en">Yenilenebilir enerji</span><span class="pill p-warn">Ocak'a yetişme: orta</span><span class="pill p-warn">Özgünlük riski orta</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Güneş, ikinci bir kaynak (küçük rüzgâr türbini ya da ikinci panel dizisi) ve bataryadan oluşan küçük bir sistemde, yük önceliklendirme kuralları kesintisiz besleme süresini ve batarya ömrünü nasıl etkiler?</p></dd>
+      <dt>Yöntem</dt><dd><p>12/24 V DC ölçekli kurulum. PLC ya da mikrodenetleyici şarj ve yük kontrolünü yapar; HMI/SCADA ekranı izleme sağlar. Üç senaryo karşılaştırılır: öncelik yok, sabit eşikle yük atma, tahmine dayalı yük atma.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Kritik yükün beslendiği süre (%)</li><li>Derin deşarj sayısı</li><li>Kaynaklardan kullanılan enerji oranı</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Okulun iki alanını bir arada gösterdiği için çok boyutlu bir proje. Kapsamı büyük olduğu için <b>yalnızca bir yük yönetim algoritması karşılaştırmasına</b> daraltılmalı.</p></dd>
+    </dl>
+    <div class="risk"><b>Güvenlik:</b> Lityum batarya yangın riski taşır. Sigorta, batarya yönetim kartı (BMS) ve gözetim şart; mümkünse LiFePO4 ya da kapalı tip kurşun-asit tercih edilmeli.</div>
+  </article>
+
+  <!-- E4 -->
+  <article class="proj" data-track="enerji" id="E4">
+    <header><span class="code">E4</span><h3>PV arıza ve gölgelenme erken uyarısı</h3></header>
+    <div class="tags"><span class="pill p-en">Yenilenebilir enerji</span><span class="pill p-good">Ocak'a yetişir</span><span class="pill p-warn">Özgünlük riski orta</span><span class="pill p-good">Önerilen</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Akım, gerilim ve sıcaklık gibi düşük maliyetli ölçümlerle kısmi gölgelenme, kirlenme ve gevşek bağlantı birbirinden ayırt edilebilir mi?</p></dd>
+      <dt>Yöntem</dt><dd><p>Panele kontrollü arıza sınıfları uygulanır (kartonla kısmi gölge, ölçülü kirlilik, seri direnç ekleyerek zayıf bağlantı). 2-3 hafta veri toplanır. Basit bir sınıflandırıcı (karar ağacı, rastgele orman) eğitilir ve mikrodenetleyicide çalıştırılır. Eğitim ve test verisi <b>farklı günlerden</b> alınır.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Sınıflandırma doğruluğu, karışıklık matrisi</li><li>Yanlış alarm oranı</li><li>Tespit gecikmesi</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Literatürde derin öğrenmeli çalışmalar var. Fark: <b>cihaz üzerinde çalışan, düşük maliyetli ve açık veri setiyle paylaşılan</b> bir çözüm. Veri setini ekte yayınlamak tekrarlanabilirlik puanını artırır.</p></dd>
+    </dl>
+  </article>
+
+  <!-- E5 -->
+  <article class="proj" data-track="enerji" id="E5">
+    <header><span class="code">E5</span><h3>Düşük rüzgârda 3B baskı kanat karşılaştırması</h3></header>
+    <div class="tags"><span class="pill p-en">Yenilenebilir enerji</span><span class="pill p-good">Ocak'a yetişir</span><span class="pill p-bad">Özgünlük riski yüksek</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Şehir ve çatı gibi düşük rüzgâr hızlarında, kanat sayısı ve büküm açısı değişince çalışmaya başlama hızı ve elektriksel güç nasıl değişir?</p></dd>
+      <dt>Yöntem</dt><dd><p>Kontrollü fanlı mini rüzgâr tüneli, anemometre, küçük DC jeneratör ve yük direnci. 3B yazıcıyla 4-6 kanat varyasyonu basılır. Her varyasyon 3 tekrar ölçülür.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Çalışmaya başlama hızı (m/s)</li><li>Güç, devir ve güç katsayısı</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Okul projelerinde yaygın. Farkı, <b>belirli bir hedef (ör. 2-4 m/s)</b> için sistematik tasarım ve istatistiksel karşılaştırma yaratır.</p></dd>
+    </dl>
+  </article>
+
+  <!-- A1 -->
+  <article class="proj" data-track="otomasyon" id="A1">
+    <header><span class="code">A1</span><h3>Atölye motoru için prediktif bakım izleme</h3></header>
+    <div class="tags"><span class="pill p-au">Endüstriyel otomasyon</span><span class="pill p-good">Ocak'a yetişir</span><span class="pill p-warn">Özgünlük riski orta</span><span class="pill p-good">Önerilen</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Akım, titreşim ve sıcaklık verisiyle bir asenkron motorun ya da konveyörün arızası (dengesizlik, kayış gevşekliği, yatak sorunu) erken fark edilebilir mi? Makine öğrenmesi basit eşik yönteminden daha mı iyi?</p></dd>
+      <dt>Yöntem</dt><dd><p>Düşük güçlü motor test tezgâhı; ivmeölçer, akım sensörü ve sıcaklık sensörü; veri Modbus ya da MQTT ile toplanır, Node-RED paneliyle izlenir. Kontrollü mekanik arızalar (ağırlıkla dengesizlik, gevşek kayış) oluşturulur. Eşik yöntemi ile sınıflandırıcı karşılaştırılır.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Arıza tespit oranı, yanlış alarm oranı</li><li>Arızadan alarma kadar geçen süre</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Konu iyi bilinen ama okul düzeyinde <b>açık, tekrarlanabilir bir tezgâh ve veri seti</b> az. Fark: okulun kendi donanımıyla ucuz kurulum.</p></dd>
+    </dl>
+    <div class="risk"><b>Güvenlik:</b> Yalnızca küçük güçte motor, koruyucu kapak ve devre koruma elemanlarıyla; elektriksel arıza (faz kaybı, kısa devre) oluşturmayın, yalnızca mekanik arıza.</div>
+  </article>
+
+  <!-- A2 -->
+  <article class="proj" data-track="otomasyon" id="A2">
+    <header><span class="code">A2</span><h3>Otomasyon istasyonunun dijital ikizi</h3></header>
+    <div class="tags"><span class="pill p-au">Endüstriyel otomasyon</span><span class="pill p-warn">Ocak'a yetişme: orta</span><span class="pill p-good">Özgünlük riski düşük</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Konveyör, sensör ve silindirden oluşan bir istasyonun sanal modeli, gerçek hattın davranışını ne kadar doğru yansıtıyor? PLC programı önce sanal modelde test edilirse gerçek hatta daha az hata çıkıyor mu?</p></dd>
+      <dt>Yöntem</dt><dd><p>PLC programı hem sanal modele hem gerçek istasyona bağlanır. Zamanlama, konum ve durum farkları ölçülür. Programa bilinçli hatalar eklenip hatalar sanal modelde ne kadarının yakalandığı sayılır.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Sanal ve gerçek arasında zamanlama farkı (ms) ve konum hatası</li><li>Sanal ortamda yakalanan hataların oranı</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Okulda <b>çok az bulunan</b> bir konu. Sanal ortam için lisanslı bir yazılım ya da açık kaynak çözüm gerekir.</p></dd>
+    </dl>
+    <div class="risk"><b>Etik:</b> "Öğrenciler ikizle daha hızlı öğreniyor mu" diye ölçmeye kalkarsanız insan deneyi olur ve izin gerektirir. Ölçümü yalnızca sistem davranışı üzerinden yapın.</div>
+  </article>
+
+  <!-- A3 -->
+  <article class="proj" data-track="otomasyon" id="A3">
+    <header><span class="code">A3</span><h3>Görüntü işlemeli ayıklama bandında enerji tasarrufu</h3></header>
+    <div class="tags"><span class="pill p-au">Endüstriyel otomasyon</span><span class="pill p-good">Ocak'a yetişir</span><span class="pill p-bad">Özgünlük riski yüksek</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Kameralı ayıklama bandı, ürün yokken bandı durdurup bekleme moduna alarak ne kadar enerji tasarrufu sağlar ve ayıklama doğruluğunu düşürür mü?</p></dd>
+      <dt>Yöntem</dt><dd><p>Konveyör, kamera ve PLC ile renk/boyut ayıklama. Üç mod karşılaştırılır: sürekli çalışma, zamanlayıcıyla durma, ürün algılayınca çalışma. Rehber de benzer bir robotik ayıklama örneğini (kamerayla çürük/taze ayırma) tematik alan örneği olarak veriyor.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Enerji tüketimi (Wh/100 ürün)</li><li>Ayıklama doğruluğu, işlem süresi</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>"Ayıklama bandı" tek başına çok yaygın. <b>Enerji verimliliği karşılaştırması</b> olmadan öneri yapmıyorum.</p></dd>
+    </dl>
+  </article>
+
+  <!-- A4 -->
+  <article class="proj" data-track="otomasyon" id="A4">
+    <header><span class="code">A4</span><h3>Güneşle çalışan akıllı sulama otomasyonu</h3></header>
+    <div class="tags"><span class="pill p-au">Endüstriyel otomasyon</span><span class="pill p-bad">Ocak'a yetişme: zor</span><span class="pill p-warn">Özgünlük riski orta</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Güneş panelinden beslenen, toprak nemi ve hava durumuna göre sulayan bir sistem, zamanlayıcılı sulamaya göre ne kadar su tasarrufu sağlar?</p></dd>
+      <dt>Yöntem</dt><dd><p>Nem sensörleri, pompa/vana, güneş paneli ve batarya. İki parsel (zamanlayıcılı ve sensörlü) karşılaştırılır. Rehber, tek bir özelliğe sahip sistemler yerine iletişim ve bilgilendirme içeren tümleşik sistemleri öne çıkarıyor.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Su tüketimi (L), toprak nem aralığı</li><li>Sistemin kendi enerji dengesi</li></ul></dd>
+    </dl>
+    <div class="risk"><b>Dikkat:</b> Bitki gelişimi ve mevsim nedeniyle bu başvuru dönemine yetişmesi zor. <b>Gelecek dönem (2027-2028) için Nisan'da başlatılması</b> daha gerçekçi.</div>
+  </article>
+
+  <!-- A5 -->
+  <article class="proj" data-track="otomasyon" id="A5">
+    <header><span class="code">A5</span><h3>PLC istasyonu için endüstriyel siber güvenlik</h3></header>
+    <div class="tags"><span class="pill p-au">Endüstriyel otomasyon</span><span class="pill p-warn">Ocak'a yetişme: orta</span><span class="pill p-good">Özgünlük riski düşük</span><span class="pill p-good">Önerilen</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Modbus/TCP gibi korumasız protokolle çalışan bir okul PLC istasyonu, yetkisiz yazma komutuna ve tekrar oynatma saldırısına karşı basit bir izin listesi ve anomali izlemesiyle korunabilir mi?</p></dd>
+      <dt>Yöntem</dt><dd><p>İnternete ve okul ağına bağlı <b>olmayan, izole</b> bir laboratuvar ağı: PLC, HMI, saldırı yapan bilgisayar, izleme yapan küçük bilgisayar. Saldırı senaryoları yalnızca bu ağda uygulanır; savunma olarak komut izin listesi ve trafik anomali izleme eklenir.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Saldırı tespit oranı, yanlış alarm oranı</li><li>Tespit gecikmesi, istasyon çalışmasına etkisi</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Okul düzeyinde <b>nadir</b>. Otomasyon ve bilişim bilgisini birleştirdiği için çok boyutlu.</p></dd>
+    </dl>
+    <div class="risk"><b>Etik ve güvenlik:</b> Saldırı denemeleri okul ağında ya da gerçek bir sistemde asla yapılmamalı. İzole ağ ve danışman gözetimi şart; raporda bu önlemler açıkça yazılmalı.</div>
+  </article>
+
+  <!-- A6 -->
+  <article class="proj" data-track="otomasyon" id="A6">
+    <header><span class="code">A6</span><h3>Basınçlı hava kaçak tespiti ve enerji tasarrufu</h3></header>
+    <div class="tags"><span class="pill p-au">Endüstriyel otomasyon</span><span class="pill p-good">Ocak'a yetişir</span><span class="pill p-good">Özgünlük riski düşük</span><span class="pill p-good">Önerilen</span></div>
+    <dl>
+      <dt>Araştırma sorusu</dt><dd><p>Pnömatik bir hatta, basınç düşümü ve kompresörün çalışma süresinden kaçak varlığı ve büyüklüğü tahmin edilebilir mi? Kaçağı onarmak ne kadar enerji tasarrufu sağlar?</p></dd>
+      <dt>Yöntem</dt><dd><p>Atölyedeki pnömatik eğitim seti; kalibre edilmiş iğne vana ya da bilinen çaplı deliklerle kontrollü kaçak. Basınç sensörü ve kompresör akımı kaydedilir. Kaçak büyüklüğü ile basınç düşme eğrisi ve kompresör çevrim sayısı ilişkilendirilir; PLC alarm üretir.</p></dd>
+      <dt>Ölçülecekler</dt><dd><ul class="tight"><li>Kaçak büyüklüğüne göre tespit eşiği</li><li>Kompresör enerjisi (Wh) kaçaklı ve kaçaksız</li><li>Tahmin edilen ve gerçek kaçak karşılaştırması</li></ul></dd>
+      <dt>Özgünlük</dt><dd><p>Endüstride bilinen bir problem; okul düzeyinde ölçülü ve <b>PLC ile otomatik alarm üreten</b> uygulaması az.</p></dd>
+    </dl>
+    <div class="risk"><b>Güvenlik:</b> Çalışma basıncı eğitim setinin sınırında kalmalı, emniyet valfi ve koruyucu gözlük kullanılmalı.</div>
+  </article>
+
+  <div class="box" style="margin-top:8px">
+    <h3>Önermediğim konu: güneşten hidrojen üretimi</h3>
+    <p>Rehber hidrojen enerjisini tematik alan olarak listeliyor, ama elektrolizde açığa çıkan hidrojen ve oksijen gazı ile depolama okul koşullarında patlama riski taşıyor. Rehber de tehlikeli deney setlerinin yalnızca tüm önlemlerin alındığı, uzman gözetimindeki ortamlarda kullanılabileceğini söylüyor. Bu proje için bir üniversite laboratuvarı desteği olmadan başlamayı önermiyorum.</p>
+  </div>
+</section>
+
+<section>
+  <h2>5. Her projede aynı olması gereken çıta</h2>
+  <div class="grid3">
+    <div class="box"><h3>Referans olmadan proje yok</h3><p>Her projede bir karşılaştırma yöntemi olmalı: sabit panel, takvimli temizlik, eşik yöntemi, kaçaksız hat.</p></div>
+    <div class="box"><h3>Ölçüm kaydı</h3><p>Ham veri, tarih ve fotoğraflarla tutulan bir çalışma günlüğü. Jüri çalışmanın ekip tarafından yapıldığını buradan anlar.</p></div>
+    <div class="box"><h3>Tekrar ve belirsizlik</h3><p>Her ölçüm en az 3 kez tekrarlanır, ölçüm hatası raporda belirtilir.</p></div>
+    <div class="box"><h3>Literatür ve fark</h3><p>Raporun Giriş bölümü makalelere dayanır. Benzer çalışma bulunursa fark açıkça yazılır; bire bir tekrar etik ihlal sayılır.</p></div>
+    <div class="box"><h3>Güvenlik ve izin</h3><p>Düşük gerilim, korumalı kurulum. Anket ya da insan katılımı varsa MEB izni, onam ve 18 yaş altı için veli izni.</p></div>
+    <div class="box"><h3>Öğrenci emeği</h3><p>Danışman yönlendirir, yapmaz. Sunumda danışman söz alamaz; öğrenciler her ayrıntıyı anlatabilmeli.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>6. Takvim</h2>
+  <ol class="tl">
+    <li><span class="d">3 - 13 Kasım</span><p>Müdür yardımcısı kararı, proje ve ekip seçimi, danışman atama, ARBİS kayıtları. Literatür taraması başlar.</p></li>
+    <li><span class="d">14 Kasım - 4 Aralık</span><p>Tasarım, malzeme temini, prototip kurulumu. İzin gerektiren bir çalışma varsa yazıları bu aşamada gönderin.</p></li>
+    <li><span class="d">5 - 18 Aralık</span><p>Ölçüm ve veri toplama (en az 2 hafta, tekrarlarla). Güneş projeleri için havası uygun günler öncelikli.</p></li>
+    <li><span class="d">19 - 27 Aralık</span><p>Veri analizi, rapor yazımı (en fazla 20 sayfa), özet (150-250 kelime).</p></li>
+    <li><span class="d">28 - 30 Aralık</span><p>Danışman ve ikinci öğretmen okuması, kaynakça ve benzerlik kontrolü, izin belgelerinin PDF hâli, TYBS'ye yükleme.</p></li>
+    <li class="end"><span class="d">4 Ocak 2027, 17.30</span><p>Sistem otomatik kapanır. Son güne bırakmayın; hedef 30 Aralık.</p></li>
+  </ol>
+</section>
+
+<section>
+  <h2>7. Müdür yardımcısıyla konuşulacak kararlar</h2>
+  <ol class="dec">
+    <li><b>Hangi projeler?</b> Önerim E2, E4, A1, A5, A6. Her biri için ayrı 3 öğrencilik ekip gerekir.</li>
+    <li><b>Danışmanlar kim olacak?</b> Elektrik-otomasyon, yenilenebilir enerji ve bilişim/Türkçe (rapor yazımı) alanlarından öğretmenler. Bir danışman birden fazla projeye bakabilir.</li>
+    <li><b>Atölye ve cihaz erişimi:</b> PLC setleri, pnömatik set, panel, ölçü aletleri, 3B yazıcı hangi saatlerde kullanılabilir?</li>
+    <li><b>Malzeme bütçesi:</b> Sensör, mikrodenetleyici, panel, motor, batarya. Her proje için ekip ayrıntılı bir liste çıkarsın; ben fiyat tahmini vermedim çünkü güncel fiyatları doğrulayamadım.</li>
+    <li><b>Çalışma saatleri:</b> Ders dışı atölye saati ve veli bilgilendirmesi. Okul dışı güneş ölçümleri için çatı ya da bahçe erişimi.</li>
+    <li><b>Güvenlik sorumlusu:</b> Atölye şefi ya da yetkili öğretmen gözetimi, özellikle motor, batarya ve basınçlı hava için.</li>
+    <li><b>İzinler:</b> Önerilen beş projenin hiçbirinde insan katılımı yok, dolayısıyla MEB araştırma izni gerekmiyor. Anket eklenirse süreç değişir.</li>
+    <li><b>İlk haftanın çıktısı:</b> Her ekipten 1 sayfalık problem tanımı, ölçülecek değerler ve karşılaştırma yöntemi.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>8. Belirsizlikler</h2>
+  <ul class="tight">
+    <li>Önceki yılların dereceli projeleri arasında bu alanlardaki örnekleri bulamadım. Öneriler tasarım çalışmasıdır; derece garantisi vermez.</li>
+    <li>Puanlama ağırlıkları 2025 formundan; 2026-2027 formu aynı olmayabilir.</li>
+    <li>Her önerinin özgünlüğü, ekibin literatür taramasıyla doğrulanmalı. "Risk" derecelendirmem kendi değerlendirmemdir.</li>
+    <li>Müfredat ve atölye donanımınızı bilmediğim için ders eşleşmeleri ve donanım varsayımları genel; sizin atölyenize göre uyarlanmalı.</li>
+  </ul>
+</section>
+
+<footer>
+  <b>Kaynaklar</b>
+  <ul style="margin:8px 0 0;padding-left:20px">
+    <li><a href="https://tubitak.gov.tr/tr/yarismalar/2204-lise-ogrencileri-arastirma-projeleri-yarismasi">TÜBİTAK 2204-A yarışma sayfası</a></li>
+    <li><a href="https://tubitak.gov.tr/sites/default/files/2026-09/lise_proje_rehberi_2027_onaya_sunulan.pdf">Lise proje rehberi (2027 çağrısı)</a>: ana alanlar, tematik alanlar, etik kurallar, Teknolojik Tasarım bölümü</li>
+    <li><a href="https://tubitak.gov.tr/sites/default/files/2025-11/on_degerlendirme_kriterleri_2025_web.pdf">Ön değerlendirme kriterleri (2025)</a></li>
+    <li><a href="https://tubitak.gov.tr/sites/default/files/2025-10/proje_yazma_sablonu_2025-2026_web.docx">Proje yazma şablonu (2025-2026)</a></li>
+    <li><a href="https://acikerisim.selcuk.edu.tr/items/7dad25de-7794-4a9f-aad6-d8cab40861f5/full">PLC kontrollü çok eksenli güneş takip çalışması (Selçuk Üniversitesi)</a>: E1'deki özgünlük uyarısının dayanağı</li>
+  </ul>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var chips=document.querySelectorAll('.chip');
+  var items=document.querySelectorAll('[data-track]');
+  chips.forEach(function(c){
+    c.addEventListener('click',function(){
+      var f=c.getAttribute('data-f');
+      chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false')});
+      items.forEach(function(el){el.hidden=(f!=='all'&&el.getAttribute('data-track')!==f)});
+    });
+  });
+})();
+</script>

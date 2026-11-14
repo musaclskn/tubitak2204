@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sensör Paneli</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --text:#1c1f24; --muted:#6b7280; --line:#e3e6eb;
+    --accent:#2563eb; --soil:#0d9488; --ok:#16a34a; --bad:#dc2626; --grid:#e9ecf1;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0f1115; --card:#181b21; --text:#e8eaee; --muted:#8b93a1; --line:#272b33;
+      --accent:#5b9bff; --soil:#2dd4bf; --ok:#34d399; --bad:#f87171; --grid:#232730; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  h1{font-size:20px;margin:0}
+  .status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--bad)}
+  .dot.on{background:var(--ok)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:820px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+  .grid2 .card{margin-bottom:0}
+  .grid2{margin-bottom:16px}
+  .reading{text-align:center;padding:12px 8px}
+  .value{font-size:clamp(44px,9vw,80px);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .unit{font-size:.35em;color:var(--muted);font-weight:500;margin-left:6px}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;margin-top:12px}
+  .stat{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .stat b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+  .stat span{color:var(--muted);font-size:12px}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer}
+  button:hover:not(:disabled){border-color:var(--accent)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  input,select{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+  input[type=number]{width:110px}
+  canvas{width:100%;height:200px;display:block;margin-top:12px}
+  h2{font-size:13px;margin:0 0 8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  pre{margin:0;height:140px;overflow:auto;font:12px/1.5 ui-monospace,Consolas,monospace;color:var(--muted);white-space:pre-wrap}
+  .warn{background:#fef3c7;color:#78350f;border-radius:8px;padding:10px 12px;margin-bottom:16px;display:none}
+  .bar{height:14px;border-radius:7px;background:var(--grid);overflow:hidden;margin:12px 0 4px}
+  .bar i{display:block;height:100%;width:0;background:var(--soil);transition:width .3s}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid var(--line)}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Sensör Paneli</h1>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusTxt">Bağlı değil</span></div>
+  </header>
+
+  <div class="warn" id="warn">Bu tarayıcı Web Serial desteklemiyor. Chrome veya Edge ile açın.</div>
+
+  <div class="card">
+    <div class="row">
+      <button class="primary" id="btnConnect">Bağlan</button>
+      <button id="btnDisconnect" disabled>Bağlantıyı kes</button>
+      <label class="row" style="gap:6px">Baud
+        <select id="baud"><option>115200</option><option>9600</option><option>57600</option><option>230400</option></select>
+      </label>
+      <label class="row" style="gap:6px">Ağırlık birimi
+        <select id="unitSel"><option value="g">g</option><option value="kg">kg</option></select>
+      </label>
+      <span style="flex:1"></span>
+      <button id="btnClear">İstatistikleri sıfırla</button>
+      <button id="btnCsv">CSV indir</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <!-- AĞIRLIK -->
+    <div class="card">
+      <h2>Ağırlık (HX711)</h2>
+      <div class="reading">
+        <div><span class="value" id="wVal">--</span><span class="unit" id="wUnit">g</span></div>
+        <div class="sub" id="wMode">Veri bekleniyor</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span>Min</span><b id="wMin">--</b></div>
+        <div class="stat"><span>Maks</span><b id="wMax">--</b></div>
+        <div class="stat"><span>Ort.</span><b id="wAvg">--</b></div>
+        <div class="stat"><span>Örnek</span><b id="wCnt">0</b></div>
+      </div>
+      <canvas id="wChart"></canvas>
+      <div class="row" style="margin-top:12px">
+        <button id="btnTare" disabled>Tara</button>
+        <input type="number" id="calGram" placeholder="gram" min="1" step="any">
+        <button id="btnCal" disabled>Kalibre et</button>
+        <button id="btnReset" disabled>Kal. sil</button>
+      </div>
+      <div class="hint">Boşken "Tara", sonra bilinen ağırlığı koyup gramını girin.</div>
+    </div>
+
+    <!-- TOPRAK NEMİ -->
+    <div class="card">
+      <h2>Toprak nemi (HD-38)</h2>
+      <div class="reading">
+        <div><span class="value" id="sVal" style="color:var(--soil)">--</span><span class="unit" id="sUnit">%</span></div>
+        <div class="sub"><span class="badge" id="sBadge">Veri bekleniyor</span></div>
+        <div class="bar"><i id="sBar"></i></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span>Ham (ADC)</span><b id="sRaw">--</b></div>
+        <div class="stat"><span>Kuru ref.</span><b id="sDry">--</b></div>
+        <div class="stat"><span>Islak ref.</span><b id="sWet">--</b></div>
+        <div class="stat"><span>Örnek</span><b id="sCnt">0</b></div>
+      </div>
+      <canvas id="sChart"></canvas>
+      <div class="row" style="margin-top:12px">
+        <button id="btnDry" disabled>Kuru (havada) kaydet</button>
+        <button id="btnWet" disabled>Islak (suda) kaydet</button>
+        <button id="btnSoilReset" disabled>Kal. sil</button>
+      </div>
+      <div class="hint">Sensör havadayken "Kuru", çubukları suya batırınca "Islak" kaydedin. Çubukların elektronik kısmı suya girmemeli.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Sulama ve fan</h2>
+    <div class="row" style="gap:16px;margin-bottom:10px">
+      <span>Pompa: <span class="badge" id="pState">--</span></span>
+      <span>Fan: <span class="badge" id="fState">--</span></span>
+      <span>Bu oturumda verilen su: <b id="pTotal">0.0</b> mL</span>
+    </div>
+    <div class="row">
+      <input type="number" id="doseMl" placeholder="mL" min="1" step="any">
+      <button id="btnDose" disabled>Sulama başlat</button>
+      <button id="btnPumpStop" disabled style="border-color:var(--bad);color:var(--bad)">DURDUR</button>
+      <span style="flex:1"></span>
+      <button id="btnFanOn" disabled>Fan aç</button>
+      <button id="btnFanOff" disabled>Fan kapat</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input type="number" id="testSec" placeholder="saniye" min="1" step="any">
+      <button id="btnPumpTest" disabled>Pompa testi</button>
+      <input type="number" id="flowVal" placeholder="mL/sn" min="0.05" step="any">
+      <button id="btnFlow" disabled>Debiyi kaydet</button>
+      <button id="btnInfo" disabled>Sınırlar</button>
+    </div>
+    <div class="hint">Debi kalibrasyonu: "Pompa testi" ile örneğin 10 sn çalıştırıp ölçü kabındaki hacmi okuyun, hacim ÷ süre değerini "Debiyi kaydet"e girin. Kart; tek doz, azami süre, bekleme ve günlük toplam sınırlarını kendisi uygular ve sınır aşılırsa pompayı çalıştırmaz.</div>
+  </div>
+
+  <div class="card">
+    <h2>Hava (DHT11)</h2>
+    <div class="grid2" style="margin-bottom:0">
+      <div>
+        <div class="reading">
+          <div><span class="value" id="tVal" style="color:#d97706">--</span><span class="unit">°C</span></div>
+          <div class="sub">Sıcaklık</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span>Min</span><b id="tMin">--</b></div>
+          <div class="stat"><span>Maks</span><b id="tMax">--</b></div>
+          <div class="stat"><span>Örnek</span><b id="tCnt">0</b></div>
+        </div>
+        <canvas id="tChart"></canvas>
+      </div>
+      <div>
+        <div class="reading">
+          <div><span class="value" id="hVal" style="color:#0284c7">--</span><span class="unit">%</span></div>
+          <div class="sub">Bağıl hava nemi</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span>Min</span><b id="hMin">--</b></div>
+          <div class="stat"><span>Maks</span><b id="hMax">--</b></div>
+          <div class="stat"><span>Örnek</span><b id="hCnt">0</b></div>
+        </div>
+        <canvas id="hChart"></canvas>
+      </div>
+    </div>
+    <div class="hint">DHT11 doğruluğu: sıcaklık ±2 °C, nem ±%5. Her 2 saniyede bir ölçülür.</div>
+  </div>
+
+  <div class="card">
+    <h2>Seri günlüğü</h2>
+    <pre id="log"></pre>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const MAXPTS = 150;
+  let port = null, reader = null, writer = null, keepReading = false;
+
+  // ---- veri durumu ----
+  const W = {pts:[], cnt:0, sum:0, min:Infinity, max:-Infinity, last:null, gram:false};
+  const S = {pts:[], cnt:0, pct:null, raw:null, calibrated:false, dry:null, wet:null};
+  let all = [];   // CSV: {t, tur, deger, birim}
+
+  if (!('serial' in navigator)) $('warn').style.display = 'block';
+
+  function setConnected(on){
+    $('dot').classList.toggle('on', on);
+    $('statusTxt').textContent = on ? 'Bağlı' : 'Bağlı değil';
+    $('btnConnect').disabled = on;
+    $('btnDisconnect').disabled = !on;
+    ['btnTare','btnCal','btnReset','btnDry','btnWet','btnSoilReset',
+     'btnDose','btnPumpStop','btnFanOn','btnFanOff','btnPumpTest','btnFlow','btnInfo'].forEach(i => $(i).disabled = !on);
+  }
+
+  function log(s){
+    const el = $('log');
+    el.textContent += s + '\n';
+    if (el.textContent.length > 20000) el.textContent = el.textContent.slice(-10000);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  // ---- grafik ----
+  function drawChart(canvas, pts, color, dec, fixedRange){
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    canvas.width = w*dpr; canvas.height = h*dpr;
+    const g = canvas.getContext('2d'); g.scale(dpr, dpr);
+    const css = getComputedStyle(document.documentElement);
+    const grid = css.getPropertyValue('--grid').trim(), muted = css.getPropertyValue('--muted').trim();
+    const padL=52, padR=8, padT=8, padB=8;
+    const ys = pts.map(p => p.v);
+    let lo, hi;
+    if (fixedRange){ lo = fixedRange[0]; hi = fixedRange[1]; }
+    else {
+      lo = ys.length ? Math.min(...ys) : 0; hi = ys.length ? Math.max(...ys) : 1;
+      if (hi - lo < 1e-9){ lo -= 1; hi += 1; }
+      const m = (hi-lo)*0.1; lo -= m; hi += m;
+    }
+    g.font = '11px system-ui'; g.fillStyle = muted; g.strokeStyle = grid; g.lineWidth = 1;
+    for (let i=0;i<=4;i++){
+      const y = padT + (h-padT-padB)*i/4;
+      g.beginPath(); g.moveTo(padL,y); g.lineTo(w-padR,y); g.stroke();
+      g.fillText((hi - (hi-lo)*i/4).toFixed(dec), 4, y+4);
+    }
+    if (ys.length < 2) return;
+    g.strokeStyle = color; g.lineWidth = 2; g.beginPath();
+    ys.forEach((v,i) => {
+      const x = padL + (w-padL-padR) * i/(MAXPTS-1);
+      const y = padT + (h-padT-padB) * (1-(v-lo)/(hi-lo));
+      i ? g.lineTo(x,y) : g.moveTo(x,y);
+    });
+    g.stroke();
+  }
+
+  const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  // ---- ağırlık ----
+  function pushWeight(v, gram){
+    W.gram = gram; W.last = v; W.cnt++; W.sum += v;
+    W.min = Math.min(W.min, v); W.max = Math.max(W.max, v);
+    W.pts.push({v}); if (W.pts.length > MAXPTS) W.pts.shift();
+    all.push({t: new Date().toISOString(), tur: gram ? 'agirlik' : 'agirlik_ham', deger: v, birim: gram ? 'g' : 'ham'});
+    renderWeight();
+  }
+  function renderWeight(){
+    const kg = $('unitSel').value === 'kg' && W.gram;
+    const f = v => v == null || !isFinite(v) ? '--' : (W.gram ? (kg ? (v/1000).toFixed(3) : v.toFixed(1)) : v.toFixed(0));
+    $('wUnit').textContent = W.gram ? (kg ? 'kg' : 'g') : '(ham)';
+    $('wMode').textContent = W.cnt ? (W.gram ? 'Kalibre edilmiş ağırlık' : 'Kalibrasyon yok, ham değer') : 'Veri bekleniyor';
+    $('wVal').textContent = f(W.last);
+    $('wMin').textContent = W.cnt ? f(W.min) : '--';
+    $('wMax').textContent = W.cnt ? f(W.max) : '--';
+    $('wAvg').textContent = W.cnt ? f(W.sum/W.cnt) : '--';
+    $('wCnt').textContent = W.cnt;
+    const scale = kg ? 1000 : 1;
+    drawChart($('wChart'), W.pts.map(p => ({v: p.v/scale})), cssVar('--accent'), W.gram ? (kg?3:1) : 0);
+  }
+
+  // ---- toprak nemi ----
+  function pushSoilRaw(v){
+    S.raw = v;
+    all.push({t: new Date().toISOString(), tur: 'nem_ham', deger: v, birim: 'adc'});
+    renderSoil();
+  }
+  function pushSoilPct(v){
+    S.pct = v; S.cnt++; S.calibrated = true;
+    S.pts.push({v}); if (S.pts.length > MAXPTS) S.pts.shift();
+    all.push({t: new Date().toISOString(), tur: 'nem', deger: v, birim: '%'});
+    renderSoil();
+  }
+  function soilLabel(p){
+    if (p < 20) return ['Çok kuru', '#dc2626'];
+    if (p < 40) return ['Kuru', '#d97706'];
+    if (p < 70) return ['Nemli (ideal)', '#16a34a'];
+    if (p < 90) return ['Islak', '#2563eb'];
+    return ['Çok ıslak / suda', '#2563eb'];
+  }
+  function renderSoil(){
+    $('sRaw').textContent = S.raw == null ? '--' : S.raw.toFixed(0);
+    $('sDry').textContent = S.dry == null ? '--' : S.dry;
+    $('sWet').textContent = S.wet == null ? '--' : S.wet;
+    $('sCnt').textContent = S.cnt;
+    if (S.calibrated && S.pct != null){
+      $('sVal').textContent = S.pct.toFixed(1);
+      $('sUnit').textContent = '%';
+      $('sBar').style.width = S.pct + '%';
+      const [t, c] = soilLabel(S.pct);
+      $('sBadge').textContent = t; $('sBadge').style.color = c; $('sBadge').style.borderColor = c;
+      drawChart($('sChart'), S.pts, cssVar('--soil'), 1, [0,100]);
+    } else {
+      $('sVal').textContent = S.raw == null ? '--' : S.raw.toFixed(0);
+      $('sUnit').textContent = '(ham)';
+      $('sBar').style.width = '0';
+      $('sBadge').textContent = S.raw == null ? 'Veri bekleniyor' : 'Kalibrasyon yok';
+      $('sBadge').style.color = ''; $('sBadge').style.borderColor = '';
+    }
+  }
+
+  // ---- hava (DHT11) ----
+  const T = {pts:[], cnt:0, min:Infinity, max:-Infinity, last:null};
+  const H = {pts:[], cnt:0, min:Infinity, max:-Infinity, last:null};
+  function pushSeries(S_, v){
+    S_.last = v; S_.cnt++; S_.min = Math.min(S_.min, v); S_.max = Math.max(S_.max, v);
+    S_.pts.push({v}); if (S_.pts.length > MAXPTS) S_.pts.shift();
+  }
+  function renderAir(){
+    const f = (S_, v, d) => S_.cnt ? v.toFixed(d) : '--';
+    $('tVal').textContent = f(T, T.last, 1);
+    $('tMin').textContent = f(T, T.min, 1); $('tMax').textContent = f(T, T.max, 1); $('tCnt').textContent = T.cnt;
+    $('hVal').textContent = f(H, H.last, 0);
+    $('hMin').textContent = f(H, H.min, 0); $('hMax').textContent = f(H, H.max, 0); $('hCnt').textContent = H.cnt;
+    drawChart($('tChart'), T.pts, '#d97706', 1);
+    drawChart($('hChart'), H.pts, '#0284c7', 0, [0,100]);
+  }
+
+  let pumpTotal = 0;
+  function setBadge(id, on, onTxt, offTxt, color){
+    const el = $(id);
+    el.textContent = on ? onTxt : offTxt;
+    el.style.color = on ? color : ''; el.style.borderColor = on ? color : '';
+  }
+
+  // ---- satır ayrıştırma ----
+  const num = s => parseFloat(s.replace(',', '.'));
+  function handleLine(line){
+    line = line.trim();
+    if (!line) return;
+    log(line);
+    let m;
+    if ((m = line.match(/^Agirlik:\s*(-?\d+(?:[.,]\d+)?)/i))) return pushWeight(num(m[1]), true);
+    if ((m = line.match(/^Ham deger:\s*(-?\d+(?:[.,]\d+)?)/i))) return pushWeight(num(m[1]), false);
+    if ((m = line.match(/^PompaDurum:\s*([01])/))) { setBadge('pState', m[1] === '1', 'AÇIK', 'kapalı', '#d97706'); return; }
+    if ((m = line.match(/^FanDurum:\s*([01])/)))   { setBadge('fState', m[1] === '1', 'AÇIK', 'kapalı', '#16a34a'); return; }
+    if ((m = line.match(/^Sulama_mL:\s*(-?\d+(?:[.,]\d+)?)/))) {
+      const v = num(m[1]); pumpTotal += v; $('pTotal').textContent = pumpTotal.toFixed(1);
+      all.push({t: new Date().toISOString(), tur: 'sulama_ml', deger: v, birim: 'mL'}); return;
+    }
+    if ((m = line.match(/^AgirlikHam:\s*(-?\d+(?:[.,]\d+)?)/))) {
+      all.push({t: new Date().toISOString(), tur: 'agirlik_ham_g', deger: num(m[1]), birim: 'g'}); return;
+    }
+    if (/^Pompa reddedildi/i.test(line)) { $('pState').title = line; return; }
+    if ((m = line.match(/^Sicaklik:\s*(-?\d+(?:[.,]\d+)?)/i))) {
+      const v = num(m[1]); pushSeries(T, v);
+      all.push({t: new Date().toISOString(), tur: 'sicaklik', deger: v, birim: 'C'}); return renderAir();
+    }
+    if ((m = line.match(/^Hava nemi:\s*(-?\d+(?:[.,]\d+)?)/i))) {
+      const v = num(m[1]); pushSeries(H, v);
+      all.push({t: new Date().toISOString(), tur: 'hava_nem', deger: v, birim: '%'}); return renderAir();
+    }
+    if ((m = line.match(/^NemHam:\s*(-?\d+(?:[.,]\d+)?)/i))) return pushSoilRaw(num(m[1]));
+    if ((m = line.match(/^Nem:\s*(-?\d+(?:[.,]\d+)?)\s*%/i))) return pushSoilPct(num(m[1]));
+    if ((m = line.match(/KURU.*:\s*(\d+)/))) { S.dry = parseInt(m[1]); renderSoil(); return; }
+    if ((m = line.match(/ISLAK.*:\s*(\d+)/))) { S.wet = parseInt(m[1]); renderSoil(); return; }
+    if ((m = line.match(/Nem kalibrasyonu yuklendi:\s*kuru=(\d+)\s*islak=(\d+)/i))) { S.dry = +m[1]; S.wet = +m[2]; renderSoil(); return; }
+    if (/Nem kalibrasyonu silindi/i.test(line)) { S.dry = S.wet = null; S.calibrated = false; S.pct = null; S.pts = []; renderSoil(); }
+  }
+
+  // ---- seri port ----
+  async function connect(){
+    try{
+      port = await navigator.serial.requestPort();
+      await port.open({baudRate: parseInt($('baud').value)});
+    }catch(e){ log('Bağlanılamadı: ' + e.message); port = null; return; }
+    setConnected(true);
+    log('Bağlandı.');
+    const enc = new TextEncoderStream();
+    enc.readable.pipeTo(port.writable);
+    writer = enc.writable.getWriter();
+    keepReading = true;
+    readLoop();
+  }
+
+  async function readLoop(){
+    const dec = new TextDecoderStream();
+    const closed = port.readable.pipeTo(dec.writable).catch(()=>{});
+    reader = dec.readable.getReader();
+    let buf = '';
+    try{
+      while (keepReading){
+        const {value, done} = await reader.read();
+        if (done) break;
+        buf += value;
+        let i;
+        while ((i = buf.indexOf('\n')) >= 0){ handleLine(buf.slice(0,i)); buf = buf.slice(i+1); }
+      }
+    }catch(e){ log('Okuma hatası: ' + e.message); }
+    try{ reader.releaseLock(); }catch(_){}
+    await closed;
+  }
+
+  async function disconnect(){
+    keepReading = false;
+    try{ if (reader) await reader.cancel(); }catch(_){}
+    try{ if (writer){ await writer.close(); writer = null; } }catch(_){}
+    try{ if (port) await port.close(); }catch(_){}
+    port = null; reader = null;
+    setConnected(false);
+    log('Bağlantı kesildi.');
+  }
+
+  async function send(cmd){
+    if (!writer) return;
+    try{ await writer.write(cmd + '\n'); log('> ' + cmd); }
+    catch(e){ log('Gönderilemedi: ' + e.message); }
+  }
+
+  function resetStats(){
+    W.pts = []; W.cnt = 0; W.sum = 0; W.min = Infinity; W.max = -Infinity; W.last = null;
+    S.pts = []; S.cnt = 0; S.pct = null; S.raw = null;
+    for (const s of [T, H]) { s.pts = []; s.cnt = 0; s.min = Infinity; s.max = -Infinity; s.last = null; }
+    all = [];
+    renderWeight(); renderSoil(); renderAir();
+  }
+
+  function downloadCsv(){
+    if (!all.length){ log('CSV için kayıt yok.'); return; }
+    const rows = ['zaman,tur,deger,birim'].concat(all.map(r => `${r.t},${r.tur},${r.deger},${r.birim}`));
+    const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sensor_' + new Date().toISOString().replace(/[:.]/g,'-') + '.csv';
+    a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  $('btnConnect').onclick = connect;
+  $('btnDisconnect').onclick = disconnect;
+  $('btnTare').onclick = () => send('t');
+  $('btnReset').onclick = () => send('r');
+  $('btnCal').onclick = () => {
+    const g = parseFloat($('calGram').value);
+    if (!(g > 0)){ log('Geçerli bir gram girin.'); return; }
+    send('c' + g);
+  };
+  $('btnDose').onclick = () => {
+    const ml = parseFloat($('doseMl').value);
+    if (!(ml > 0)){ log('Geçerli bir mL girin.'); return; }
+    send('p' + ml);
+  };
+  $('btnPumpStop').onclick = () => send('q');
+  $('btnFanOn').onclick = () => send('f1');
+  $('btnFanOff').onclick = () => send('f0');
+  $('btnPumpTest').onclick = () => {
+    const s = parseFloat($('testSec').value);
+    if (!(s > 0)){ log('Geçerli bir süre girin.'); return; }
+    send('pt' + s);
+  };
+  $('btnFlow').onclick = () => {
+    const f = parseFloat($('flowVal').value);
+    if (!(f > 0)){ log('Geçerli bir debi girin (mL/sn).'); return; }
+    send('pf' + f);
+  };
+  $('btnInfo').onclick = () => send('i');
+  $('btnDry').onclick = () => send('d');
+  $('btnWet').onclick = () => send('w');
+  $('btnSoilReset').onclick = () => send('x');
+  $('btnClear').onclick = resetStats;
+  $('btnCsv').onclick = downloadCsv;
+  $('unitSel').onchange = renderWeight;
+  window.addEventListener('resize', () => { renderWeight(); renderSoil(); renderAir(); });
+
+  if ('serial' in navigator){
+    navigator.serial.addEventListener('disconnect', () => { if (port) disconnect(); });
+  }
+  renderWeight(); renderSoil(); renderAir();
+})();
+</script>
+</body>
+</html>

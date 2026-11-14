@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kap Kartı Şeması</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --text:#1c1f24; --muted:#6b7280; --line:#e3e6eb;
+    --wire:#374151; --pwr:#dc2626; --sig:#2563eb; --gnd:#4b5563; --box:#f8fafc; --warn:#b45309;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0f1115; --card:#181b21; --text:#e8eaee; --muted:#8b93a1; --line:#272b33;
+      --wire:#cbd5e1; --pwr:#f87171; --sig:#60a5fa; --gnd:#9ca3af; --box:#1f232b; --warn:#fbbf24; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 48px}
+  h1{font-size:24px;margin:0 0 4px}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:16px}
+  h2{font-size:17px;margin:0 0 10px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:13px;border-top:0;white-space:nowrap}
+  code{font:13px ui-monospace,Consolas,monospace;background:var(--box);padding:1px 5px;border-radius:4px}
+  .warn{border-left:3px solid var(--warn);padding:6px 12px;margin:10px 0;background:var(--box);border-radius:0 8px 8px 0}
+  .warn b{color:var(--warn)}
+  ul{margin:6px 0 0 18px;padding:0} li{margin:3px 0}
+  svg{width:100%;height:auto;min-width:760px;display:block}
+  svg text{fill:var(--text);font:12px system-ui,Segoe UI,sans-serif}
+  svg .t-m{fill:var(--muted)}
+  svg .t-b{font-weight:700}
+  svg .box{fill:var(--box);stroke:var(--wire);stroke-width:1.4}
+  svg .esp{fill:var(--box);stroke:var(--wire);stroke-width:2}
+  svg .dash{stroke-dasharray:6 4;fill:none}
+  svg .w-pwr{stroke:var(--pwr);stroke-width:2;fill:none}
+  svg .w-sig{stroke:var(--sig);stroke-width:2;fill:none}
+  svg .w-gnd{stroke:var(--gnd);stroke-width:2;fill:none;stroke-dasharray:2 3}
+  svg .t-pwr{fill:var(--pwr)} svg .t-sig{fill:var(--sig)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:8px}
+  .legend i{display:inline-block;width:26px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+  @media print{ body{background:#fff} .card{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kap Kartı Bağlantı Şeması</h1>
+  <div class="meta">Her kap için bir ESP32 kartı (delikli plaket) · Uyarlanabilir sulama projesi, TÜBİTAK 2204-A · Sürüm 1, 14 Kasım 2026</div>
+
+  <div class="warn"><b>Durum:</b> Bu bir tasarım belgesidir. Pin atamaları yazılımda ve tezgâhta (sensör tarafı) denendi. <b>Pompa/fan sürücüsü, güç grubu ve 12 V hattı henüz kurulmadı, denenmedi.</b> Parça değerleri tipik öneridir, kendi parçalarınızın veri sayfasına göre doğrulayın.</div>
+
+  <div class="card">
+    <h2>1. Blok şeması</h2>
+    <div class="legend"><span><i style="border-color:var(--pwr)"></i>+12 V / +5 V güç</span><span><i style="border-color:var(--sig)"></i>sinyal / 3,3 V</span><span><i style="border-color:var(--gnd);border-top-style:dotted"></i>GND</span></div>
+    <svg viewBox="-34 0 974 620" role="img" aria-label="ESP32 kartının blok bağlantı şeması">
+      <!-- 12 V rayı -->
+      <path class="w-pwr" d="M40 111 H20 V545 H40"/>
+      <path class="w-pwr" d="M20 180 H40"/>
+      <path class="w-pwr" d="M20 425 H40"/>
+      <text x="-8" y="330" text-anchor="middle" class="t-pwr t-b" transform="rotate(-90 -8 330)">+12 V hattı</text>
+
+      <!-- Sol: güç zinciri -->
+      <rect class="box" x="40" y="20" width="210" height="44" rx="8"/>
+      <text x="145" y="46" text-anchor="middle" class="t-b">12 V adaptör (DC jak)</text>
+      <path class="w-pwr" d="M145 64 V84"/>
+      <rect class="box" x="40" y="84" width="210" height="54" rx="8"/>
+      <text x="145" y="106" text-anchor="middle" class="t-b">Sigorta 1,5 A + SS54</text>
+      <text x="145" y="124" text-anchor="middle" class="t-m">ters kutup koruması, 470 µF</text>
+      <path class="w-pwr" d="M145 138 V158 M250 111 H250"/>
+      <rect class="box" x="40" y="158" width="210" height="44" rx="8"/>
+      <text x="145" y="178" text-anchor="middle" class="t-b">Buck 12 V → 5 V (2 A)</text>
+      <text x="145" y="194" text-anchor="middle" class="t-m">çıkışı ölç: 5,0 V</text>
+      <path class="w-pwr" d="M250 180 H420"/>
+      <text x="262" y="172" class="t-pwr">5 V → araya SS14 diyot</text>
+      <text x="262" y="196" class="t-m">(USB ile birlikte verme)</text>
+
+      <!-- Sol: depo seviye -->
+      <rect class="box dash" x="40" y="270" width="210" height="54" rx="8" style="stroke-dasharray:6 4"/>
+      <text x="145" y="293" text-anchor="middle" class="t-b">Depo seviye anahtarı</text>
+      <text x="145" y="311" text-anchor="middle" class="t-m">opsiyonel: GPIO13 ↔ GND</text>
+      <path class="w-sig" d="M250 297 H420"/>
+      <text x="262" y="290" class="t-sig">GPIO13 (dahili pull-up)</text>
+
+      <!-- Sol: pompa -->
+      <rect class="box" x="40" y="395" width="210" height="100" rx="8"/>
+      <text x="145" y="415" text-anchor="middle" class="t-b">Pompa sürücü (12 V)</text>
+      <text x="145" y="433" text-anchor="middle" class="t-m">GPIO26 → 100 Ω → kapı</text>
+      <text x="145" y="449" text-anchor="middle" class="t-m">kapı–GND 10 kΩ (şart)</text>
+      <text x="145" y="465" text-anchor="middle" class="t-m">mantık seviyeli N-MOSFET</text>
+      <text x="145" y="481" text-anchor="middle" class="t-m">pompaya paralel ters diyot</text>
+      <path class="w-sig" d="M250 425 H420"/>
+      <text x="262" y="418" class="t-sig">GPIO26</text>
+
+      <!-- Sol: fan -->
+      <rect class="box" x="40" y="515" width="210" height="80" rx="8"/>
+      <text x="145" y="537" text-anchor="middle" class="t-b">Fan sürücü (12 V, 0,15 A)</text>
+      <text x="145" y="555" text-anchor="middle" class="t-m">pompayla aynı yapı</text>
+      <text x="145" y="571" text-anchor="middle" class="t-m">yalnızca fanlı mikroiklimde</text>
+      <path class="w-sig" d="M250 545 H420"/>
+      <text x="262" y="538" class="t-sig">GPIO27</text>
+      <path class="w-pwr" d="M20 545 H40"/>
+
+      <!-- ESP32 -->
+      <rect class="esp" x="420" y="60" width="180" height="530" rx="10"/>
+      <text x="510" y="82" text-anchor="middle" class="t-b">ESP32 DevKit</text>
+      <text x="510" y="98" text-anchor="middle" class="t-m">(kap başına 1 kart)</text>
+      <g class="t-m" font-size="11">
+        <text x="428" y="184">5V / VIN</text>
+        <text x="428" y="301">GPIO13</text>
+        <text x="428" y="429">GPIO26</text>
+        <text x="428" y="549">GPIO27</text>
+      </g>
+      <g text-anchor="end" class="t-m">
+        <text x="592" y="99">3V3</text>
+        <text x="592" y="129">GPIO16</text>
+        <text x="592" y="154">GPIO4</text>
+        <text x="592" y="219">GPIO34 (ADC1)</text>
+        <text x="592" y="244">GPIO25</text>
+        <text x="592" y="309">GPIO33</text>
+        <text x="592" y="334">GPIO32</text>
+        <text x="592" y="409">GPIO21 / 22</text>
+        <text x="592" y="459">GPIO5/18/19/23</text>
+        <text x="592" y="569">GND</text>
+      </g>
+
+      <!-- Sağ: HX711 -->
+      <rect class="box" x="720" y="70" width="200" height="110" rx="8"/>
+      <text x="820" y="90" text-anchor="middle" class="t-b">HX711 + 20 kg yük hücresi</text>
+      <text x="730" y="108" class="t-m">VCC ← 3V3</text>
+      <text x="730" y="128" class="t-m">DT  → GPIO16</text>
+      <text x="730" y="148" class="t-m">SCK ← GPIO4</text>
+      <text x="730" y="168" class="t-m">hücre: E+ E− A+ A− → HX711</text>
+      <path class="w-sig" d="M60095 H720"/>
+      <path class="w-sig" d="M600125 H720"/>
+      <path class="w-sig" d="M600150 H720"/>
+
+      <!-- Sağ: HD-38 -->
+      <rect class="box" x="720" y="200" width="200" height="66" rx="8"/>
+      <text x="820" y="219" text-anchor="middle" class="t-b">HD-38 nem sensörü</text>
+      <text x="730" y="238" class="t-m">AO → GPIO34</text>
+      <text x="730" y="256" class="t-m">VCC ← GPIO25 (ölçümde açılır)</text>
+      <path class="w-sig" d="M600215 H720"/>
+      <path class="w-sig" d="M600240 H720"/>
+
+      <!-- Sağ: DHT11 -->
+      <rect class="box" x="720" y="290" width="200" height="78" rx="8"/>
+      <text x="820" y="309" text-anchor="middle" class="t-b">DHT11 (3 pinli modül)</text>
+      <text x="730" y="328" class="t-m">VCC ← GPIO33</text>
+      <text x="730" y="344" class="t-m">DATA ↔ GPIO32</text>
+      <text x="730" y="360" class="t-m">çıplak sensör: VCC–DATA 10 kΩ</text>
+      <path class="w-sig" d="M600305 H720"/>
+      <path class="w-sig" d="M600330 H720"/>
+
+      <!-- Sağ: genişleme -->
+      <rect class="box" x="720" y="385" width="200" height="100" rx="8" style="stroke-dasharray:6 4"/>
+      <text x="820" y="405" text-anchor="middle" class="t-b">İleride (yer ayırın)</text>
+      <text x="730" y="424" class="t-m">I2C: SDA 21, SCL 22</text>
+      <text x="730" y="440" class="t-m">SHT31, BH1750, DS3231, ADS1115</text>
+      <text x="730" y="460" class="t-m">SD (SPI): CS 5, SCK 18,</text>
+      <text x="730" y="476" class="t-m">MISO 19, MOSI 23</text>
+      <path class="w-sig" d="M600405 H720" style="stroke-dasharray:6 4"/>
+      <path class="w-sig" d="M600455 H720" style="stroke-dasharray:6 4"/>
+
+      <!-- Sağ: GND -->
+      <rect class="box" x="720" y="530" width="200" height="60" rx="8"/>
+      <text x="820" y="551" text-anchor="middle" class="t-b">Ortak GND (yıldız nokta)</text>
+      <text x="730" y="570" class="t-m">tüm GND, buck, MOSFET kaynakları</text>
+      <path class="w-gnd" d="M600565 H720"/>
+    </svg>
+  </div>
+
+  <div class="card">
+    <h2>2. Pin tablosu</h2>
+    <table>
+      <thead><tr><th>Pin</th><th>Görev</th><th>Yön</th><th>Not</th></tr></thead>
+      <tbody>
+        <tr><td><code>GPIO16</code></td><td>HX711 DT</td><td>giriş</td><td>WROVER modülünde PSRAM pinidir. WROOM'da serbest (şu anki kartlarda çalışıyor)</td></tr>
+        <tr><td><code>GPIO4</code></td><td>HX711 SCK</td><td>çıkış</td><td></td></tr>
+        <tr><td><code>GPIO34</code></td><td>HD-38 AO</td><td>analog giriş</td><td>ADC1, yalnızca giriş, 0–3,1 V. AO 3,3 V'u aşmamalı (modülü 3,3 V ile besleyin)</td></tr>
+        <tr><td><code>GPIO25</code></td><td>HD-38 VCC (anahtarlı)</td><td>çıkış</td><td>Çubuk paslanmasın diye yalnızca ölçümde açılır. Modül akımı ölçülmedi</td></tr>
+        <tr><td><code>GPIO33</code></td><td>DHT11 VCC</td><td>çıkış</td><td>Sürekli HIGH</td></tr>
+        <tr><td><code>GPIO32</code></td><td>DHT11 DATA</td><td>çift yönlü</td><td>Modülde çekme direnci var. Çıplak sensörde 10 kΩ VCC–DATA</td></tr>
+        <tr><td><code>GPIO26</code></td><td>Pompa MOSFET kapısı</td><td>çıkış</td><td>Açılış/reset sırasında yüzer. <b>10 kΩ pull-down şart</b></td></tr>
+        <tr><td><code>GPIO27</code></td><td>Fan MOSFET kapısı</td><td>çıkış</td><td>Aynı şekilde 10 kΩ pull-down</td></tr>
+        <tr><td><code>GPIO13</code></td><td>Depo seviye (opsiyonel)</td><td>giriş, dahili pull-up</td><td>Yazılımda <code>LEVEL_PIN = 13</code> ve anahtarın boş depo seviyesi ayarlanacak (şu an kapalı)</td></tr>
+        <tr><td><code>GPIO21/22</code></td><td>I2C SDA/SCL</td><td>ayrılmış</td><td>SHT31, BH1750, DS3231, ADS1115 için soket bırakın</td></tr>
+        <tr><td><code>GPIO5/18/19/23</code></td><td>SD (SPI)</td><td>ayrılmış</td><td>CS/SCK/MISO/MOSI</td></tr>
+        <tr><td><code>3V3</code></td><td>HX711 VCC</td><td>güç</td><td>Tek 3V3 pini; fazla yük bindirmeyin</td></tr>
+        <tr><td><code>5V/VIN</code></td><td>Buck çıkışı</td><td>güç</td><td>Araya Schottky diyot (SS14)</td></tr>
+        <tr><td><code>GND</code></td><td>Ortak toprak</td><td>–</td><td>Kartta üç GND pini var. <b>"CMD" GND değildir</b></td></tr>
+      </tbody>
+    </table>
+    <div class="warn"><b>Bağlanmayacak pinler:</b> GPIO6–11 (flash hattı; kartta CMD, CLK, SD0–SD3 yazar), GPIO12 (açılışta HIGH olmamalı), GPIO0/2/15 (açılış pinleri), GPIO34–39 çıkış olarak kullanılamaz. Bu proje sırasında GND'nin CMD pinine takılması kartı sürekli resetletti.</div>
+    <p style="color:var(--muted);margin:8px 0 0;font-size:14px">Planlanan 30 pinli ESP32 DevKit V1'de de bu GPIO'ların hepsi bulunur (GPIO16 üzerinde RX2 yazar). Pin <i>konumları</i> farklıdır, plaketi kart modeline göre çizin.</p>
+  </div>
+
+  <div class="card">
+    <h2>3. Konnektörler (öneri)</h2>
+    <table>
+      <thead><tr><th>No</th><th>Ne</th><th>Pin sırası</th><th>Tip</th></tr></thead>
+      <tbody>
+        <tr><td>J1</td><td>12 V giriş</td><td>+12 V, GND</td><td>Vida klemens</td></tr>
+        <tr><td>J2</td><td>Pompa</td><td>+12 V, Pompa− (MOSFET drain)</td><td>Vida klemens</td></tr>
+        <tr><td>J3</td><td>Fan</td><td>+12 V, Fan−</td><td>Vida klemens</td></tr>
+        <tr><td>J4</td><td>HX711</td><td>3V3, DT, SCK, GND</td><td>Kutuplu 4 pin</td></tr>
+        <tr><td>J5</td><td>HD-38</td><td>VCC (GPIO25), AO, GND</td><td>Kutuplu 3 pin</td></tr>
+        <tr><td>J6</td><td>DHT11</td><td>VCC (GPIO33), DATA, GND</td><td>Kutuplu 3 pin</td></tr>
+        <tr><td>J7</td><td>Depo seviye</td><td>GPIO13, GND</td><td>2 pin (opsiyonel)</td></tr>
+        <tr><td>J8</td><td>I2C genişletme</td><td>3V3, GND, SDA, SCL</td><td>4 pin (boş bırakın)</td></tr>
+        <tr><td>J9</td><td>SD genişletme</td><td>3V3, GND, CS, SCK, MISO, MOSI</td><td>6 pin (boş bırakın)</td></tr>
+      </tbody>
+    </table>
+    <p style="color:var(--muted);margin:8px 0 0;font-size:14px">Sensör konnektörlerini kutuplu (yönlü) alın ve plaket üzerine pin adlarını yazın. Ters takılan sensör bu projede zaten sorun çıkardı.</p>
+  </div>
+
+  <div class="card">
+    <h2>4. Pompa ve fan sürücü arayüzü</h2>
+    <p style="margin:0 0 6px">Güç grubunu ve MOSFET'leri siz çizeceğiniz için yalnızca ESP32 ile bağlandığı yerleri yazıyorum:</p>
+    <ul>
+      <li><b>Sinyal:</b> GPIO26 (pompa) / GPIO27 (fan) → 100 Ω → MOSFET kapısı. Kapı ile GND arasında 10 kΩ. Kart resetlenirken pin yüzer, bu direnç olmadan pompa kendiliğinden çalışabilir.</li>
+      <li><b>MOSFET:</b> Mantık seviyeli (3,3 V ile tam açılan) N kanal, alt taraf anahtarlama: kaynak GND'de, pompa/fan eksisi drain'de. IRF520 tabanlı modüllerden kaçının. Plandaki LR7843 modülünü kullanacaksanız giriş tarafı ve besleme pinlerini modül üzerindeki yazılardan teyit edin.</li>
+      <li><b>Ters diyot:</b> Pompaya paralel, katot +12 V'a, anot MOSFET drain'ine (SS14 veya 1N4007). Fana da aynı şekilde.</li>
+      <li><b>Ortak GND:</b> Adaptörün eksisi, buck GND'si, MOSFET kaynakları ve ESP32 GND'si tek bir noktada birleşsin (yıldız). Pompa dönüş akımı HX711 GND hattından geçmesin.</li>
+      <li><b>Gürültü:</b> Pompa/fan kablolarını HX711 ve yük hücresi kablolarından ayırın. 12 V hattına 470–1000 µF, ESP32 5 V ve 3V3 hattına 100 nF seramik ekleyin.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>5. Güç bütçesi (tahmin, ölçülmedi)</h2>
+    <table>
+      <thead><tr><th>Yük</th><th>Akım</th><th>Not</th></tr></thead>
+      <tbody>
+        <tr><td>ESP32 (5 V)</td><td>~0,1–0,25 A, Wi-Fi tepe ~0,5 A</td><td>Wi-Fi eklenince buck en az 2 A olmalı</td></tr>
+        <tr><td>HX711 + DHT11 + HD-38</td><td>~20 mA (3,3 V)</td><td>3V3 pinden ve GPIO'lardan</td></tr>
+        <tr><td>Pompa (12 V)</td><td>0,08–0,42 A</td><td>Satıcılar arası çelişkili, gerçek değeri ölçün</td></tr>
+        <tr><td>Fan (12 V)</td><td>0,15 A</td><td>Yalnızca fanlı kartta</td></tr>
+        <tr><td><b>12 V toplam</b></td><td><b>≈ 0,8 A</b></td><td>Adaptör ≥ 2 A, sigorta 1,5 A</td></tr>
+      </tbody>
+    </table>
+    <div class="warn"><b>USB ve harici 5 V birlikte:</b> Karta aynı anda hem USB hem buck 5 V bağlarsanız güç kaynakları birbirine geri akım verebilir. Buck çıkışına Schottky diyot koyun ya da programlama sırasında harici beslemeyi sökün.</div>
+  </div>
+
+  <div class="card">
+    <h2>6. Parça listesi (kart başına)</h2>
+    <ul>
+      <li>ESP32 DevKit + dişi header (kart sökülebilir olsun)</li>
+      <li>Buck modül 12 V → 5 V, 2 A (çıkışı kartı takmadan önce ölçün)</li>
+      <li>Diyotlar: SS54 (ters kutup), SS14 (5 V hattı), pompa ve fan için 1N4007 veya SS14 ×2</li>
+      <li>Sigorta 1,5 A + tutucu</li>
+      <li>Kondansatör: 470–1000 µF / 25 V (12 V hattı), 470 µF / 10 V (5 V), 100 nF seramik ×3</li>
+      <li>Direnç: 10 kΩ ×2 (kapı pull-down), 100 Ω ×2 (kapı seri), 10 kΩ ×1 (yalnızca çıplak DHT11 için)</li>
+      <li>Mantık seviyeli N-MOSFET ×2 (veya hazır modül)</li>
+      <li>Vida klemens ×3, kutuplu sensör konnektörleri</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>7. İlk açılış sırası</h2>
+    <ol style="margin:6px 0 0 20px;padding:0">
+      <li>ESP32 takılı değilken multimetreyle +12 V ile GND, 5 V ile GND ve 3V3 ile GND arasında kısa devre olmadığını doğrulayın.</li>
+      <li>12 V adaptörü takın, <b>buck çıkışını ölçün (5,0 V)</b>. Sonra ESP32'yi yerleştirin.</li>
+      <li>Önce yalnızca ESP32 ve sensörlerle açın. Pompa ve fanı bağlamayın. Seri çıktıda okumaları görün.</li>
+      <li>Pompa ve fanı bağlayın. İlk komut olarak <code>q</code> ve ardından kısa bir <code>pt2</code> deneyin, pompanın diğer her şey bağlıyken ağırlık okumasını bozmadığına bakın.</li>
+      <li>Debiyi ölçün (<code>pt10</code> ile 10 sn, ölçü kabıyla hacim), <code>pf</code> ile kaydedin.</li>
+    </ol>
+  </div>
+</div>
+</body>
+</html>
